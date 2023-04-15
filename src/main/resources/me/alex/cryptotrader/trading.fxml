@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="960.0" style="-fx-border-color: #544177; -fx-border-width: 10px 10px 10px 0px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.alex.cryptotrader.controller.main.TradingController">
+    <right>
+        <AnchorPane prefHeight="200.0" prefWidth="970.0" style="-fx-background-color: #F3EAF4;">
+            <Button layoutX="905.0" layoutY="8.0" mnemonicParsing="false" onAction="#closeProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
+            <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="905.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
+                <Image url="@../../../images/close.png" />
+            </ImageView>
+            <Button layoutX="865.0" layoutY="8.0" mnemonicParsing="false" onAction="#minimiseProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
+            <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="865.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
+                <Image url="@../../../images/minimise.png" />
+            </ImageView>
+        </AnchorPane>
+    </right>
+</BorderPane>

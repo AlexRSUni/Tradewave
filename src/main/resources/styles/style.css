@@ -1,0 +1,36 @@
+.buttonItem:hover {
+    -fx-border-color: WHITE;
+    -fx-border-width: 0px 0px 3px 0px
+}
+
+.closeItem {
+    -fx-background-color: #F3EAF4;
+}
+
+.closeItem:hover {
+    -fx-background-color: #F75590;
+    -fx-background-radius: 10px;
+}
+
+.editItem {
+    -fx-background-color: #F3EAF4;
+}
+
+.editItem:hover {
+    -fx-background-color: #F1D5F4;
+    -fx-background-radius: 20px;
+}
+
+.default-color0.chart-series-line {
+    -fx-stroke: #6166aa;
+}
+
+.list-cell {
+    -fx-max-width: 0;
+    -fx-background-color: transparent;
+}
+
+.list-view .scroll-bar {
+   -fx-opacity: 0;
+   -fx-padding: -7;
+}

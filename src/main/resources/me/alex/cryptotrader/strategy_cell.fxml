@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="65.0" prefWidth="530.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" styleClass="#544177" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+    <effect>
+        <DropShadow />
+    </effect>
+    <Label fx:id="tokenLabel" alignment="CENTER" layoutX="333.0" layoutY="9.0" prefHeight="47.0" prefWidth="110.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="BTC-USD" textFill="WHITE">
+        <font>
+            <Font name="System Bold" size="18.0" />
+        </font>
+    </Label>
+    <ImageView fitHeight="58.0" fitWidth="77.0" layoutX="14.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+        <Image url="@../../../images/strategy.png" />
+    </ImageView>
+   <Label fx:id="nameLabel" alignment="CENTER" layoutX="90.0" layoutY="4.0" prefHeight="58.0" prefWidth="231.0" text="Bitcoin Strategy" textAlignment="CENTER" wrapText="true">
+      <font>
+         <Font name="System Bold" size="24.0" />
+      </font>
+   </Label>
+   <Label fx:id="countLabel" alignment="CENTER" layoutX="460.0" layoutY="9.0" prefHeight="47.0" prefWidth="49.0" style="-fx-background-color: #1C9238; -fx-background-radius: 10px;" text="8" textFill="WHITE">
+      <font>
+         <Font name="System Bold" size="20.0" />
+      </font>
+   </Label>
+</AnchorPane>

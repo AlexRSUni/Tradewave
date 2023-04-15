@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXListView?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="960.0" style="-fx-border-color: #544177; -fx-border-width: 10px 10px 10px 0px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.alex.cryptotrader.controller.main.DashboardController">
+    <right>
+         <AnchorPane fx:id="dashboardPane" prefHeight="200.0" prefWidth="970.0" style="-fx-background-color: #F3EAF4;">
+             <Button layoutX="905.0" layoutY="8.0" mnemonicParsing="false" onAction="#closeProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
+             <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="905.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
+                 <Image url="@../../../images/close.png" />
+             </ImageView>
+             <Button layoutX="865.0" layoutY="8.0" mnemonicParsing="false" onAction="#minimiseProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
+             <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="865.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
+                 <Image url="@../../../images/minimise.png" />
+             </ImageView>
+             <VBox fx:id="graphBox" layoutX="355.0" layoutY="54.0" prefHeight="419.0" prefWidth="551.0" style="-fx-background-color: white; -fx-background-radius: 10px;" stylesheets="@../../../styles/style.css">
+                 <effect>
+                     <DropShadow />
+                 </effect>
+             </VBox>
+             <VBox layoutX="44.0" layoutY="53.0" prefHeight="421.0" prefWidth="292.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
+                 <effect>
+                     <DropShadow />
+                 </effect>
+                 <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <JFXListView fx:id="transactionList" layoutY="45.0" prefHeight="374.0" prefWidth="292.0" style="-fx-background-color: transparent;" stylesheets="@../../../styles/style.css" />
+                     <Text fill="WHITE" layoutX="61.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Market Transactions">
+                         <font>
+                             <Font name="System Bold" size="18.0" />
+                         </font>
+                     </Text>
+                 </AnchorPane>
+             </VBox>
+             <VBox layoutX="45.0" layoutY="495.0" prefHeight="250.0" prefWidth="566.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
+                 <effect>
+                     <DropShadow />
+                 </effect>
+                 <AnchorPane prefHeight="250.0" prefWidth="556.0">
+                     <JFXListView fx:id="stategyList" layoutX="6.0" layoutY="43.0" prefHeight="200.0" prefWidth="553.0" style="-fx-background-color: transparent;" stylesheets="@../../../styles/style.css" />
+                     <Text fill="WHITE" layoutX="176.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Current Strategies">
+                         <font>
+                             <Font name="System Bold" size="18.0" />
+                         </font>
+                     </Text>
+                     <Text fx:id="txtInstructionStatus" fill="#c6a5a5" layoutX="133.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="None Available" textAlignment="CENTER" wrappingWidth="300.0">
+                         <font>
+                             <Font name="System Bold" size="36.0" />
+                         </font>
+                     </Text>
+                 </AnchorPane>
+             </VBox>
+             <VBox layoutX="630.0" layoutY="494.0" prefHeight="251.0" prefWidth="277.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;">
+                 <effect>
+                     <DropShadow />
+                 </effect>
+                 <AnchorPane prefHeight="332.0" prefWidth="277.0">
+                     <JFXListView fx:id="fundList" layoutX="6.0" layoutY="44.0" prefHeight="202.0" prefWidth="265.0" style="-fx-background-color: transparent;" stylesheets="@../../../styles/style.css" />
+                     <Text fill="WHITE" layoutX="91.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Funds">
+                         <font>
+                             <Font name="System Bold" size="18.0" />
+                         </font>
+                     </Text>
+                 </AnchorPane>
+             </VBox>
+         </AnchorPane>
+    </right>
+</BorderPane>

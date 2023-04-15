@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="54.0" prefWidth="243.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+    <effect>
+        <DropShadow />
+    </effect>
+    <Label fx:id="fundLabel" alignment="CENTER" layoutX="96.0" layoutY="11.0" prefHeight="32.0" prefWidth="133.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="99999999 BNB" textFill="WHITE">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Label>
+    <ImageView fitHeight="40.0" fitWidth="62.0" layoutX="15.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
+        <Image url="@../../../images/fund.png" />
+    </ImageView>
+</AnchorPane>
