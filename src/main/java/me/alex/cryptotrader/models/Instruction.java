@@ -1,129 +1,137 @@
 package me.alex.cryptotrader.models;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import me.alex.cryptotrader.controller.element.InstructionCellController;
+import me.alex.cryptotrader.instruction.ActionType;
 import me.alex.cryptotrader.instruction.ConditionType;
-import me.alex.cryptotrader.util.Utilities;
-
-import java.util.Arrays;
+import me.alex.cryptotrader.instruction.TimePeriod;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class Instruction {
 
-    private final int id;
+    // Core variables.
     private final Strategy strategy;
-    private final int rawPriority;
+    private final InstructionType type;
+    private final int id;
 
-    private final StringProperty priority;
-    private final StringProperty type;
-    private final StringProperty action;
-    private final StringProperty amount;
+    // Instruction variables.
+    private ConditionType condition;
+    private ActionType action;
+    private TimePeriod timePeriod;
+    private double value;
+    private int priority;
 
+    // Interface variables.
+    private final ObjectProperty<ConditionType> conditionProperty;
+    private final ObjectProperty<ActionType> actionProperty;
+    private final ObjectProperty<TimePeriod> timePeriodProperty;
+    private final StringProperty valueProperty;
     private InstructionCellController controller;
-    private String[] data;
-    private String rawAction;
-    private double rawAmount;
 
-    public Instruction(int id, int priority, String type, String action, double amount, Strategy strategy) {
+    public Instruction(int id, int priority, InstructionType type, String data, Strategy strategy) {
         this.id = id;
-        this.rawAction = action;
-        this.rawPriority = priority;
-        this.data = action.split(":");
         this.strategy = strategy;
+        this.priority = priority;
+        this.type = type;
+        parseRawData(data);
 
-        this.priority = new SimpleStringProperty(this, "Priority", String.valueOf(priority));
-        this.type = new SimpleStringProperty(this, "Type", type);
-        this.action = new SimpleStringProperty(this, "Action", getFormattedAction());
-        this.amount = new SimpleStringProperty(this, "Amount", "");
-
-        setRawAmount(amount);
+        this.conditionProperty = new SimpleObjectProperty<>(this, "Condition", condition);
+        this.actionProperty = new SimpleObjectProperty<>(this, "Action", action);
+        this.timePeriodProperty = new SimpleObjectProperty<>(this, "Action", timePeriod);
+        this.valueProperty = new SimpleStringProperty(this, "Value", String.valueOf(value));
     }
 
-    /**
-     * Convert raw data string to a formatted readable instruction.
-     * BUY#PRICE_SINCE_LAST_TRANSACTION:RISES_ABOVE:30000#0.1
-     */
-    private String getFormattedAction() {
-        String[] names = strategy.getTokenPairNames();
-        ConditionType condition = ConditionType.valueOf(data[0]);
+    private void parseRawData(String data) {
+        String[] split = data.split(":");
 
-        String formatted = "If ";
-
-        // Special handling for certain conditions and for conditions which include the token name.
-        if (condition == ConditionType.OWNED_TOKEN_AMOUNT) {
-            formatted += condition.name().replace("_", " ").replace("TOKEN", names[0]) + " ";
-        } else if (condition == ConditionType.OWNED_CURRENCY_AMOUNT) {
-            formatted += condition.name().replace("_", " ").replace("CURRENCY", names[1]) + " ";
-        } else {
-            if (condition.shouldIncludeTokenName()) {
-                formatted += names[0] + " ";
-            }
-
-            formatted += condition.name().replace("_", " ");
+        if (split.length != 4) {
+            return;
         }
 
-        switch (data.length) {
-            case 3 -> {
-                formatted += data[1].replace("_", " ") + " ";
-                formatted += Utilities.FORMAT_TWO_DECIMAL_PLACE.format(Double.parseDouble(data[2])) + " " + names[1];
-            }
-            case 4 -> {
-                formatted += data[1].replace("_", " ") + " ";
-                formatted += data[2] + " over ";
-                formatted += data[3].replace("_", " ");
-            }
-            default -> throw new RuntimeException("Invalid data when formatting action! {data="
-                    + Arrays.toString(data) + "}");
+        if (!split[0].equalsIgnoreCase("null")) {
+            condition = ConditionType.valueOf(split[0]);
         }
 
-        return formatted;
+        if (!split[1].equalsIgnoreCase("null")) {
+            action = ActionType.valueOf(split[1]);
+        }
+
+        if (!split[2].equalsIgnoreCase("null")) {
+            timePeriod = TimePeriod.valueOf(split[2]);
+        }
+
+        value = Double.parseDouble(split[3]);
     }
 
-    public void setAction(String action) {
-        this.rawAction = action;
-        this.data = action.split(":");
-        this.action.set(getFormattedAction());
+    public String getRawData() {
+        String rawData = "";
+
+        rawData += (condition == null ? "null" : condition.name()) + ":";
+        rawData += (action == null ? "null" : action.name()) + ":";
+        rawData += (timePeriod == null ? "null" : timePeriod.name()) + ":";
+        rawData += String.valueOf(value);
+
+        return rawData;
     }
 
-    public void setRawAmount(double rawAmount) {
-        this.rawAmount = rawAmount;
-        this.amount.set(rawAmount + " " + strategy.getTokenPairNames()[0]);
+    public ObjectProperty<ConditionType> conditionProperty() {
+        return conditionProperty;
     }
 
-    public int getId() {
-        return id;
+    public ObjectProperty<ActionType> actionProperty() {
+        return actionProperty;
     }
 
-    public String[] getData() {
-        return data;
+    public ObjectProperty<TimePeriod> timePeriodProperty() {
+        return timePeriodProperty;
     }
 
-    public String getRawAction() {
-        return rawAction;
+    public StringProperty valueProperty() {
+        return valueProperty;
     }
 
-    public double getRawAmount() {
-        return rawAmount;
+    public void setCondition(ConditionType condition) {
+        this.condition = condition;
+        this.conditionProperty.set(condition);
     }
 
-    public int getRawPriority() {
-        return rawPriority;
+    public ConditionType getCondition() {
+        return condition;
     }
 
-    public StringProperty priorityProperty() {
-        return priority;
+    public void setAction(ActionType action) {
+        this.action = action;
+        this.actionProperty.set(action);
     }
 
-    public StringProperty typeProperty() {
-        return type;
-    }
-
-    public StringProperty actionProperty() {
+    public ActionType getAction() {
         return action;
     }
 
-    public StringProperty amountProperty() {
-        return amount;
+    public void setTimePeriod(TimePeriod timePeriod) {
+        this.timePeriod = timePeriod;
+        this.timePeriodProperty.set(timePeriod);
+    }
+
+    public TimePeriod getTimePeriod() {
+        return timePeriod;
+    }
+
+    public void setValue(String value) {
+        this.value = NumberUtils.toDouble(value, 0);
+        this.valueProperty.set(value);
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setPriority(int i) {
+        this.priority = i;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     public void setController(InstructionCellController controller) {
@@ -132,6 +140,35 @@ public class Instruction {
 
     public InstructionCellController getController() {
         return controller;
+    }
+
+    public InstructionType getType() {
+        return type;
+    }
+
+    public Strategy getStrategy() {
+        return strategy;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public enum InstructionType {
+
+        IF,
+        ELSE_IF,
+        ELSE,
+        END_IF,
+        ACTION,
+        VALUE,
+        WAIT,
+        STOP;
+
+        public String getFilename() {
+            return "instruction_cell_" + name().toLowerCase() + ".fxml";
+        }
+
     }
 
 }

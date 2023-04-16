@@ -124,7 +124,7 @@ public class ViewManager {
     public BorderPane getInstructionView() {
         if (instructionView == null) {
             try {
-                FXMLLoader loader = new FXMLLoader(CryptoApplication.class.getResource("instruction.fxml"));
+                FXMLLoader loader = new FXMLLoader(CryptoApplication.class.getResource("new_instruction.fxml"));
                 instructionView = loader.load();
                 paneControllers.put(instructionView, loader.getController());
             } catch (Exception ex) {

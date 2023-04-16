@@ -14,7 +14,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="960.0" style="-fx-border-color: #544177; -fx-border-width: 10px 10px 10px 0px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.alex.cryptotrader.controller.main.DashboardController">
     <right>
-         <AnchorPane fx:id="dashboardPane" prefHeight="200.0" prefWidth="970.0" style="-fx-background-color: #F3EAF4;">
+         <AnchorPane prefHeight="200.0" prefWidth="970.0" style="-fx-background-color: #F3EAF4;">
              <Button layoutX="905.0" layoutY="8.0" mnemonicParsing="false" onAction="#closeProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
              <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="905.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
                  <Image url="@../../../images/close.png" />

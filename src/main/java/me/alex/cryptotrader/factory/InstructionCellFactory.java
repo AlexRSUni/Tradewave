@@ -16,7 +16,7 @@ public class InstructionCellFactory extends ListCell<Instruction> {
             setText(null);
             setGraphic(null);
         } else {
-            FXMLLoader loader = new FXMLLoader(CryptoApplication.class.getResource("instruction_cell.fxml"));
+            FXMLLoader loader = new FXMLLoader(CryptoApplication.class.getResource("instructions/" + instruction.getType().getFilename()));
             InstructionCellController controller = new InstructionCellController(instruction);
             loader.setController(controller);
 

@@ -1,12 +1,20 @@
 package me.alex.cryptotrader.controller.element;
 
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import me.alex.cryptotrader.instruction.ActionType;
+import me.alex.cryptotrader.instruction.ConditionType;
+import me.alex.cryptotrader.instruction.TimePeriod;
+import me.alex.cryptotrader.manager.ConfigurationManager;
 import me.alex.cryptotrader.models.Instruction;
+import me.alex.cryptotrader.util.DatabaseUtils;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class InstructionCellController implements Initializable {
@@ -14,13 +22,13 @@ public class InstructionCellController implements Initializable {
     @FXML
     public AnchorPane background;
     @FXML
-    public Label priorityLabel;
+    public ComboBox<ConditionType> comboCondition;
     @FXML
-    public Label typeLabel;
+    public ComboBox<ActionType> comboAction;
     @FXML
-    public Label actionLabel;
+    public ComboBox<TimePeriod> comboTimePeriod;
     @FXML
-    public Label priceLabel;
+    public TextField txtValue;
 
     private final Instruction instruction;
 
@@ -30,24 +38,131 @@ public class InstructionCellController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        priorityLabel.textProperty().bind(instruction.priorityProperty());
-        typeLabel.textProperty().bind(instruction.typeProperty());
-        actionLabel.textProperty().bind(instruction.actionProperty());
-        priceLabel.textProperty().bind(instruction.amountProperty());
-        updateState();
+
+        if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
+            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
+            comboAction.valueProperty().bindBidirectional(instruction.actionProperty());
+
+            comboCondition.setItems(FXCollections.observableArrayList(ConditionType.CONDITIONS));
+            comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+            comboAction.valueProperty().addListener((observable, oldValue, newValue) -> onActionSelected(newValue));
+
+            // Disable action and value box.
+            comboAction.setDisable(comboCondition.getSelectionModel().isEmpty());
+
+        } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
+            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
+
+            comboCondition.setItems(FXCollections.observableArrayList(ConditionType.ACTION_CONDITIONS));
+            comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+
+        } else if (instruction.getType() == Instruction.InstructionType.WAIT) {
+            comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
+            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.values()));
+            comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
+
+        } else if (instruction.getType() == Instruction.InstructionType.VALUE) {
+            comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
+            txtValue.textProperty().bindBidirectional(instruction.valueProperty());
+
+            invalidateInstruction();
+            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.values()));
+            comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
+            txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
+        }
 
         // Assign the background pane, so we can recolor it later.
         instruction.setController(this);
     }
 
-    public void updateState() {
-        if (instruction.typeProperty().get().equalsIgnoreCase("BUY")) {
-            instruction.typeProperty().set("BUY");
-            typeLabel.setStyle("-fx-background-color: green; -fx-background-radius: 10px;");
-        } else {
-            instruction.typeProperty().set("SELL");
-            typeLabel.setStyle("-fx-background-color: red; -fx-background-radius: 10px;");
+    @FXML
+    public void deleteInstruction() {
+        ConfigurationManager.get().getCurrentStrategy().getInstructions().remove(instruction);
+        DatabaseUtils.deleteInstruction(instruction);
+    }
+
+    public void invalidateInstruction() {
+        if (instruction.getType() != Instruction.InstructionType.VALUE) {
+            return;
         }
+
+        int index = instruction.getStrategy().getInstructions().indexOf(instruction);
+        boolean comboEnabled = false;
+        boolean valueEnabled = false;
+
+        // Reset state.
+        comboTimePeriod.setDisable(false);
+        txtValue.setDisable(false);
+
+        if (index > 0) {
+            Instruction previous = instruction.getStrategy().getInstructions().get(index - 1);
+
+            // Disable the elements if the previous instruction isn't of IF type.
+            if (previous.getType() == Instruction.InstructionType.IF || previous.getType() == Instruction.InstructionType.ELSE_IF) {
+                ConditionType condition = previous.getCondition();
+                ActionType action = previous.getAction();
+
+                if (condition != null && action != null) {
+                    if (action.canInputValue()) {
+                        valueEnabled = true;
+                    }
+
+                    comboEnabled = condition.hasTimePeriod();
+                }
+            }
+        }
+
+        // If we could not find the previous instruction, disable the elements.
+        comboTimePeriod.setDisable(!comboEnabled);
+        txtValue.setDisable(!valueEnabled);
+    }
+
+    private void onConditionSelected(ConditionType type) {
+        instruction.setCondition(type);
+
+        if (type != null && comboAction != null) {
+            // Add supported instruction types to the action combo box, and if it is none, then disable the element.
+            List<ActionType> supportedTypes = type.getSupportedInstructions();
+            comboAction.setItems(FXCollections.observableArrayList(supportedTypes));
+            comboAction.setDisable(supportedTypes.isEmpty());
+        }
+
+        notifyInstructionUpdated();
+    }
+
+    private void onValueChange(String newValue) {
+        instruction.setValue(newValue);
+
+        int index = instruction.getStrategy().getInstructions().indexOf(instruction);
+
+        notifyInstructionUpdated();
+
+        if (index > 0) {
+            Instruction previous = instruction.getStrategy().getInstructions().get(index - 1);
+
+            if (newValue.contains("%")) {
+                ActionType type = previous.getAction();
+                comboTimePeriod.setDisable(type == null || !type.canHavePercentage());
+
+                if (comboTimePeriod.isDisabled()) {
+                    instruction.setTimePeriod(null);
+                }
+            }
+        }
+    }
+
+    private void onActionSelected(ActionType type) {
+        instruction.setAction(type);
+        notifyInstructionUpdated();
+    }
+
+    private void onTimePeriodSelected(TimePeriod type) {
+        instruction.setTimePeriod(type);
+        notifyInstructionUpdated();
+    }
+
+    private void notifyInstructionUpdated() {
+        instruction.getStrategy().getInstructions().forEach(instruction -> instruction.getController().invalidateInstruction());
     }
 
     public AnchorPane getBackground() {

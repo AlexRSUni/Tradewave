@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class DatabaseUtils {
@@ -43,7 +44,7 @@ public class DatabaseUtils {
 
         try (
                 Connection connection = DriverManager.getConnection(DB_URL);
-                PreparedStatement query = connection.prepareStatement("SELECT id, priority, instructions FROM instructions WHERE user_id = ? AND strategy_id = ?")
+                PreparedStatement query = connection.prepareStatement("SELECT id, priority, type, data FROM instructions WHERE user_id = ? AND strategy_id = ?")
         ) {
             query.setString(1, username);
             query.setInt(2, strategy.getId());
@@ -51,13 +52,14 @@ public class DatabaseUtils {
 
             // If we find an account that has persistent login enabled, then log that user in immediately.
             while (result.next()) {
-                String[] data = result.getString("instructions").split("#");
-                Instruction instruction = new Instruction(result.getInt("id"), result.getInt("priority"), data[0], data[1], Double.parseDouble(data[2]), strategy);
+                Instruction instruction = new Instruction(result.getInt("id"), result.getInt("priority"), Instruction.InstructionType.valueOf(result.getString("type")), result.getString("data"), strategy);
                 instructions.add(instruction);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        instructions.sort(Comparator.comparingInt(Instruction::getPriority));
 
         return instructions;
     }
@@ -86,23 +88,24 @@ public class DatabaseUtils {
         return null;
     }
 
-    public static Instruction createInstruction(String username, int priority, String type, String action, double amount, Strategy strategy) {
+    public static Instruction createInstruction(String username, int priority, Instruction.InstructionType type, String data, Strategy strategy) {
         try (
                 Connection connection = DriverManager.getConnection(DB_URL);
                 PreparedStatement query = connection.prepareStatement("INSERT INTO instructions " +
-                        "(priority, user_id, strategy_id, instructions) VALUES (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
+                        "(user_id, strategy_id, priority, type, data) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
         ) {
-            query.setInt(1, priority);
-            query.setString(2, username);
-            query.setInt(3, strategy.getId());
-            query.setString(4, type + "#" + action + "#" + amount);
+            query.setString(1, username);
+            query.setInt(2, strategy.getId());
+            query.setInt(3, priority);
+            query.setString(4, type.name());
+            query.setString(5, data);
 
             query.executeUpdate();
 
             ResultSet resultSet = query.getGeneratedKeys();
             if (resultSet.next()) {
                 int id = resultSet.getInt(1);
-                return new Instruction(id, priority, type, action, amount, strategy);
+                return new Instruction(id, priority, type, data, strategy);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -119,10 +122,10 @@ public class DatabaseUtils {
     public static void saveInstruction(Instruction instruction) {
         try (
                 Connection connection = DriverManager.getConnection(DB_URL);
-                PreparedStatement query = connection.prepareStatement("UPDATE instructions SET priority = ?, instructions = ? WHERE id = ?")
+                PreparedStatement query = connection.prepareStatement("UPDATE instructions SET priority = ?, data = ? WHERE id = ?")
         ) {
-            query.setString(1, instruction.priorityProperty().get());
-            query.setString(2, instruction.typeProperty().get() + "#" + instruction.getRawAction() + "#" + instruction.getRawAmount());
+            query.setInt(1, instruction.getPriority());
+            query.setString(2, instruction.getRawData());
             query.setInt(3, instruction.getId());
             query.executeUpdate();
         } catch (SQLException e) {
@@ -285,10 +288,11 @@ public class DatabaseUtils {
                 Connection connection = DriverManager.getConnection(DB_URL);
                 PreparedStatement users = connection.prepareStatement("CREATE TABLE IF NOT EXISTS instructions " +
                         "(id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "priority INTEGER NOT NULL," +
                         "user_id TEXT NOT NULL, " +
                         "strategy_id INTEGER NOT NULL, " +
-                        "instructions TEXT NOT NULL, " +
+                        "priority INTEGER NOT NULL," +
+                        "type TEXT NOT NULL, " +
+                        "data TEXT NOT NULL, " +
                         "FOREIGN KEY (user_id) REFERENCES users (username) ON UPDATE CASCADE ON DELETE SET NULL, " +
                         "FOREIGN KEY (strategy_id) REFERENCES strategies (id) ON UPDATE CASCADE ON DELETE SET NULL" +
                         ");")

@@ -11,13 +11,13 @@ public enum ActionType {
     DECREASES_BY(true, true),
 
     // Market Condition
-    SKYROCKETING(true, false),
-    FAST_CLIMB(true, false),
-    CLIMBING(true, false),
-    UNSTABLE(true, false),
-    DECLINING(true, false),
-    FAST_DECLINE(true, false),
-    IN_FREEFALL(true, false),
+    SKYROCKETING(false, false),
+    FAST_CLIMB(false, false),
+    CLIMBING(false, false),
+    UNSTABLE(false, false),
+    DECLINING(false, false),
+    FAST_DECLINE(false, false),
+    IN_FREEFALL(false, false),
 
     // Wallet Condition
     IS_EQUAL_TO(false, true),

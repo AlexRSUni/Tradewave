@@ -12,8 +12,21 @@ public enum ConditionType {
     NOT_MADE_TRANSACTION(Collections.emptyList(), true, false),
     HAS_MADE_TRANSACTION(Collections.emptyList(), true, false),
     OWNED_TOKEN_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false, false),
-    OWNED_CURRENCY_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false, false)
+    OWNED_CURRENCY_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false, false),
+
+    BUY(Collections.emptyList(), false, false),
+    SELL(Collections.emptyList(), false, false),
+    BUY_AS_MUCH_AS_POSSIBLE(Collections.emptyList(), false, false),
+    SELL_ALL(Collections.emptyList(), false, false),
     ;
+
+    public static final ConditionType[] CONDITIONS = new ConditionType[]{
+            PRICE, PRICE_SINCE_LAST_TRANSACTION, MARKET_CONDITION, NOT_MADE_TRANSACTION, HAS_MADE_TRANSACTION, OWNED_TOKEN_AMOUNT, OWNED_CURRENCY_AMOUNT
+    };
+
+    public static final ConditionType[] ACTION_CONDITIONS = new ConditionType[]{
+            BUY, SELL, BUY_AS_MUCH_AS_POSSIBLE, SELL_ALL
+    };
 
     private final List<ActionType> supportedInstructions;
     private final boolean hasTimePeriod;

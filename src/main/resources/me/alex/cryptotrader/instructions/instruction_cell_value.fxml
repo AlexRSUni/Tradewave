@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane fx:id="background" prefHeight="75.0" prefWidth="590.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" styleClass="#544177" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+    <effect>
+        <DropShadow />
+    </effect>
+    <ImageView fitHeight="35.0" fitWidth="36.0" layoutX="10.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true">
+        <image>
+            <Image url="@../../../../images/drag.png" />
+        </image>
+    </ImageView>
+   <Line endY="53.0" layoutX="56.0" layoutY="12.0" startY="-2.0" />
+   <ComboBox fx:id="comboTimePeriod" layoutX="392.0" layoutY="10.0" prefHeight="56.0" prefWidth="118.0" promptText="Period" style="-fx-background-radius: 10px; -fx-background-color: white;" />
+   <TextField fx:id="txtValue" layoutX="200.0" layoutY="10.0" prefHeight="56.0" prefWidth="118.0" promptText="Enter Value" style="-fx-background-radius: 10px; -fx-background-color: white;" />
+   <Label alignment="CENTER" layoutX="73.0" layoutY="10.0" prefHeight="55.0" prefWidth="118.0" style="-fx-background-color: #D32CE2; -fx-background-radius: 10px;" text="VALUE" textFill="WHITE">
+      <font>
+         <Font name="System Bold" size="30.0" />
+      </font>
+   </Label>
+   <Button layoutX="519.0" layoutY="7.0" mnemonicParsing="false" onAction="#deleteInstruction" prefHeight="63.0" prefWidth="61.0" styleClass="editItem" stylesheets="@../../../../styles/style.css" />
+   <ImageView fitHeight="61.0" fitWidth="55.0" layoutX="522.0" layoutY="11.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@../../../../images/delete.png" />
+      </image>
+   </ImageView>
+   <Label alignment="CENTER" layoutX="328.0" layoutY="11.0" prefHeight="55.0" prefWidth="55.0" text="OVER">
+      <font>
+         <Font name="System Bold" size="18.0" />
+      </font>
+   </Label>
+</AnchorPane>
