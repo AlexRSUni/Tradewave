@@ -103,47 +103,12 @@ public class NewInstructionController extends BaseController {
     @FXML
     public void saveStrategy() {
         Strategy strategy = manager.getCurrentStrategy();
-        String error = null;
-
-        // Ensure all instructions have been fully populated.
-        for (int i = 0; i < strategy.getInstructions().size(); i++) {
-            Instruction instruction = strategy.getInstructions().get(i);
-
-            if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
-                if (instruction.getCondition() == null || instruction.getAction() == null) {
-                    error = "IF/ELSE IF on line " + (i + 1) + " is not filled out!";
-                    break;
-                }
-
-            } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
-                if (instruction.getCondition() == null || instruction.valueProperty().get().isEmpty()) {
-                    error = "ACTION on line " + (i + 1) + " is not filled out!";
-                    break;
-                }
-
-            } else if (instruction.getType() == Instruction.InstructionType.WAIT) {
-                if (instruction.getTimePeriod() == null) {
-                    error = "WAIT on line " + (i + 1) + " is not filled out!";
-                    break;
-                }
-
-            } else if (instruction.getType() == Instruction.InstructionType.VALUE) {
-                if (i == 0) {
-                    error = "VALUE on line " + (i + 1) + " must be below an IF/ELSE IF condition!";
-                    break;
-                }
-
-                Instruction above = instructionList.getItems().get(i - 1);
-                if (above.getType() != Instruction.InstructionType.IF && above.getType() != Instruction.InstructionType.ELSE_IF) {
-                    error = "VALUE on line " + (i + 1) + " must be below an IF/ELSE IF condition!";
-                    break;
-                }
-            }
-        }
 
         // Validate our instructions.
+        String error = ValidationUtils.validateInstructionCompleting(strategy);
+
         if (error == null) {
-            error = ValidationUtils.validateInstructions(strategy);
+            error = ValidationUtils.validateInstructionOrder(strategy);
         }
 
         if (error == null) {

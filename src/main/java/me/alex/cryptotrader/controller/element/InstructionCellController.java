@@ -47,14 +47,18 @@ public class InstructionCellController implements Initializable {
             comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
             comboAction.valueProperty().addListener((observable, oldValue, newValue) -> onActionSelected(newValue));
 
+            onConditionSelected(instruction.getCondition());
+
             // Disable action and value box.
-            comboAction.setDisable(comboCondition.getSelectionModel().isEmpty());
+            comboAction.setDisable(comboCondition.getSelectionModel().isEmpty() || comboCondition.getSelectionModel().getSelectedItem().getSupportedInstructions().isEmpty());
 
         } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
             comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
 
             comboCondition.setItems(FXCollections.observableArrayList(ConditionType.ACTION_CONDITIONS));
             comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+
+            onConditionSelected(instruction.getCondition());
 
         } else if (instruction.getType() == Instruction.InstructionType.WAIT) {
             comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
@@ -66,6 +70,7 @@ public class InstructionCellController implements Initializable {
             txtValue.textProperty().bindBidirectional(instruction.valueProperty());
 
             invalidateInstruction();
+
             comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.values()));
             comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
             txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
@@ -96,14 +101,16 @@ public class InstructionCellController implements Initializable {
 
         if (index > 0) {
             Instruction previous = instruction.getStrategy().getInstructions().get(index - 1);
+            ComboBox<TimePeriod> timePeriod = previous.getController().comboTimePeriod;
 
             // Disable the elements if the previous instruction isn't of IF type.
             if (previous.getType() == Instruction.InstructionType.IF || previous.getType() == Instruction.InstructionType.ELSE_IF) {
                 ConditionType condition = previous.getCondition();
                 ActionType action = previous.getAction();
 
-                if (condition != null && action != null) {
-                    if (action.canInputValue()) {
+                if (condition != null && (action != null || condition.getSupportedInstructions().isEmpty()) && (timePeriod == null || !timePeriod.isDisabled())) {
+
+                    if (action != null && action.canInputValue()) {
                         valueEnabled = true;
                     }
 
@@ -120,11 +127,22 @@ public class InstructionCellController implements Initializable {
     private void onConditionSelected(ConditionType type) {
         instruction.setCondition(type);
 
-        if (type != null && comboAction != null) {
-            // Add supported instruction types to the action combo box, and if it is none, then disable the element.
-            List<ActionType> supportedTypes = type.getSupportedInstructions();
-            comboAction.setItems(FXCollections.observableArrayList(supportedTypes));
-            comboAction.setDisable(supportedTypes.isEmpty());
+        if (type != null) {
+
+            if (comboAction != null) {
+                // Add supported instruction types to the action combo box, and if it is none, then disable the element.
+                List<ActionType> supportedTypes = type.getSupportedInstructions();
+                comboAction.setItems(FXCollections.observableArrayList(supportedTypes));
+                comboAction.setDisable(supportedTypes.isEmpty());
+            }
+
+            if (txtValue != null) {
+                if (type == ConditionType.BUY_AS_MUCH_AS_POSSIBLE || type == ConditionType.SELL_ALL) {
+                    txtValue.setDisable(true);
+                    instruction.setValue("0");
+                }
+            }
+
         }
 
         notifyInstructionUpdated();
@@ -162,7 +180,10 @@ public class InstructionCellController implements Initializable {
     }
 
     private void notifyInstructionUpdated() {
-        instruction.getStrategy().getInstructions().forEach(instruction -> instruction.getController().invalidateInstruction());
+        instruction.getStrategy().getInstructions().forEach(instruction -> {
+            InstructionCellController controller = instruction.getController();
+            if (controller != null) controller.invalidateInstruction();
+        });
     }
 
     public AnchorPane getBackground() {

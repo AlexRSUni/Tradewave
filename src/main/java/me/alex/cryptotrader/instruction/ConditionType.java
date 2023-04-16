@@ -6,18 +6,18 @@ import java.util.List;
 
 public enum ConditionType {
 
-    PRICE(Arrays.asList(ActionType.PRICE_CONDITIONS), true, true),
-    PRICE_SINCE_LAST_TRANSACTION(Arrays.asList(ActionType.PRICE_CONDITIONS), true, true),
-    MARKET_CONDITION(Arrays.asList(ActionType.MARKET_CONDITIONS), true, true),
-    NOT_MADE_TRANSACTION(Collections.emptyList(), true, false),
-    HAS_MADE_TRANSACTION(Collections.emptyList(), true, false),
-    OWNED_TOKEN_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false, false),
-    OWNED_CURRENCY_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false, false),
+    PRICE(Arrays.asList(ActionType.PRICE_CONDITIONS), true),
+    PRICE_SINCE_LAST_TRANSACTION(Arrays.asList(ActionType.PRICE_CONDITIONS), true),
+    MARKET_CONDITION(Arrays.asList(ActionType.MARKET_CONDITIONS), true),
+    NOT_MADE_TRANSACTION(Collections.emptyList(), true),
+    HAS_MADE_TRANSACTION(Collections.emptyList(), true),
+    OWNED_TOKEN_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false),
+    OWNED_CURRENCY_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false),
 
-    BUY(Collections.emptyList(), false, false),
-    SELL(Collections.emptyList(), false, false),
-    BUY_AS_MUCH_AS_POSSIBLE(Collections.emptyList(), false, false),
-    SELL_ALL(Collections.emptyList(), false, false),
+    BUY(Collections.emptyList(), false),
+    SELL(Collections.emptyList(), false),
+    BUY_AS_MUCH_AS_POSSIBLE(Collections.emptyList(), false),
+    SELL_ALL(Collections.emptyList(), false),
     ;
 
     public static final ConditionType[] CONDITIONS = new ConditionType[]{
@@ -30,12 +30,10 @@ public enum ConditionType {
 
     private final List<ActionType> supportedInstructions;
     private final boolean hasTimePeriod;
-    private final boolean includeTokenName;
 
-    ConditionType(List<ActionType> supportedInstructions, boolean hasTimePeriod, boolean includeTokenName) {
+    ConditionType(List<ActionType> supportedInstructions, boolean hasTimePeriod) {
         this.supportedInstructions = supportedInstructions;
         this.hasTimePeriod = hasTimePeriod;
-        this.includeTokenName = includeTokenName;
     }
 
     public List<ActionType> getSupportedInstructions() {
@@ -46,8 +44,5 @@ public enum ConditionType {
         return hasTimePeriod;
     }
 
-    public boolean shouldIncludeTokenName() {
-        return includeTokenName;
-    }
 
 }
