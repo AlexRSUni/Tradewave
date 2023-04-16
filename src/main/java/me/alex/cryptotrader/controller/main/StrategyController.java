@@ -5,7 +5,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.SingleSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import me.alex.cryptotrader.CryptoApplication;
@@ -15,6 +14,7 @@ import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.DatabaseUtils;
+import me.alex.cryptotrader.util.FilteredComboBoxSelectionModel;
 import me.alex.cryptotrader.util.Utilities;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -119,8 +119,6 @@ public class StrategyController extends BaseController {
             int amount = item.getInstructions().size();
             int check = NumberUtils.toInt(newValue, -1);
 
-            System.out.println(newValue + " - " + check);
-
             if (check == -1) {
                 return true;
             }
@@ -158,7 +156,7 @@ public class StrategyController extends BaseController {
 
     private void updateStatus(String tokenPair) {
         if (CryptoApplication.get().getTradingPairs().contains(tokenPair)) {
-            String[] data = Utilities.getTokenPairNames(tokenPair);
+            String[] data = Utilities.splitTokenPairSymbols(tokenPair);
 
             String first = data[0];
             String second = data[1];
@@ -180,38 +178,6 @@ public class StrategyController extends BaseController {
 
     public static StrategyController get() {
         return ViewManager.get().getController(ViewManager.get().getStrategyView());
-    }
-
-    private static class FilteredComboBoxSelectionModel<T> extends SingleSelectionModel<T> {
-        private final FilteredList<T> filteredItems;
-
-        public FilteredComboBoxSelectionModel(FilteredList<T> filteredItems) {
-            this.filteredItems = filteredItems;
-        }
-
-        @Override
-        protected T getModelItem(int index) {
-            return filteredItems.getSource().get(index);
-        }
-
-        @Override
-        protected int getItemCount() {
-            return filteredItems.getSource().size();
-        }
-
-        @Override
-        public void select(int index) {
-            if (index == -1) return;
-            int sourceIndex = filteredItems.getSourceIndex(index);
-            super.select(sourceIndex);
-        }
-
-        @Override
-        public void clearAndSelect(int index) {
-            if (index == -1) return;
-            int sourceIndex = filteredItems.getSourceIndex(index);
-            super.clearAndSelect(sourceIndex);
-        }
     }
 
 }

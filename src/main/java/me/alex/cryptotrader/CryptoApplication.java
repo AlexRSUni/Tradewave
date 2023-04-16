@@ -99,17 +99,7 @@ public class CryptoApplication extends Application {
 
     // Use a task to load our token to name data from the API otherwise it will freeze the program on startup.
     private void loadSymbolToName() {
-        Task<Void> fetchTradingPairsTask = new Task<>() {
-            @Override
-            protected Void call() {
-                Utilities.fetchTokenToNameData();
-                return null;
-            }
-        };
-
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(fetchTradingPairsTask);
-        executorService.shutdown();
+        Utilities.runTask(Utilities::fetchTokenToNameData);
     }
 
     public UserProfile getProfile() {

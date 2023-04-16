@@ -45,7 +45,7 @@ public class Instruction {
         switch (data.length) {
             case 2 -> {
                 formatted += data[0].replace("_", " ") + " ";
-                formatted += Utilities.FORMAT_ONE_DECIMAL_PLACE.format(Double.parseDouble(data[1])) + " " + names[1];
+                formatted += Utilities.FORMAT_TWO_DECIMAL_PLACE.format(Double.parseDouble(data[1])) + " " + names[1];
             }
             case 3 -> {
                 formatted += data[0].replace("_", " ") + " ";

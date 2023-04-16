@@ -1,23 +1,19 @@
 package me.alex.cryptotrader.manager;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 import javafx.util.StringConverter;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import me.alex.cryptotrader.util.Utilities;
+import me.alex.cryptotrader.util.binance.AggTradesListener;
 
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,35 +22,104 @@ import java.util.List;
 
 public class DashboardManager {
 
-    private static final String API_URL = "https://api.coinbase.com/v2/prices/<token>/historic?period=day";
-    private static final String WS_API_URL = "wss://api-pub.bitfinex.com/ws/2";
-
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
+    // Data displayed on graphs.
     private final ObservableList<Transaction> transactions;
-    private final List<Double> cryptoPrices;
+    private final List<Double> graphData;
 
-    private final String token;
-    private final String apiUrl;
+    // Trade listener.
+    private AggTradesListener tradesListener;
 
+    // Graph data.
+    private LineChart<Number, Number> chart;
+    private XYChart.Series<Number, Number> series;
+    private NumberAxis xAxis, yAxis;
+
+    // Selection combo box.
+    private ComboBox<String> comboBox;
+
+    // Trading data.
+    private String token;
     private double lastPrice;
+    private long lastGraphUpdate;
 
-    public DashboardManager(VBox graphBox, ObservableList<Transaction> transactions) {
-        this.cryptoPrices = new ArrayList<>();
+    public DashboardManager(VBox graphBox, ObservableList<Transaction> transactions, ComboBox<String> comboBox) {
+        this.graphData = new ArrayList<>();
         this.transactions = transactions;
-
-        // Setup token and API url.
-        this.token = UserProfile.get().getDashboardToken();
-        this.apiUrl = API_URL.replace("<token>", token);
+        this.lastGraphUpdate = System.currentTimeMillis();
+        this.comboBox = comboBox;
 
         // Create the graph which will display the price.
         createPriceGraph(graphBox);
+
+        // Create and setup data.
+        setupTokenVisualData(UserProfile.get().getDashboardToken());
+    }
+
+    public void setupTokenVisualData(String token) {
+        if (token.equalsIgnoreCase(this.token)) {
+            return;
+        }
+
+        // Cache our used token locally.
+        this.token = token;
+
+        String unit = Utilities.splitTokenPairSymbols(token)[1];
+
+        // Update the charts title.
+        chart.setTitle("24h " + token + " Prices");
+
+        // Create trade listener.
+        createTradeListener(token, unit);
+
+        // Fetch historic data.
+        List<Pair<Long, Double>> historicData = Utilities.fetchHistoryTradingData(token, "5m", 24 * 60 * 60);
+
+        // If no data is found, just reset the token.
+        if (historicData.isEmpty()) {
+            setupTokenVisualData("BTCUSDT");
+            comboBox.getEditor().setText("BTCUSDT");
+            return;
+        }
+
+        // Clear previously collected data.
+        this.graphData.clear();
+        this.transactions.clear();
+        this.series.getData().clear();
+
+        List<Transaction> bulkTransactions = new ArrayList<>();
+
+        // Add all historic data to the graph.
+        historicData.forEach(pair -> bulkTransactions.add(addMarketTransaction(pair.getValue(), timeFormat.format(new Date(pair.getKey())), unit, true)));
+
+        Collections.reverse(bulkTransactions);
+        transactions.addAll(bulkTransactions);
+
+        // Save the users option locally.
+        UserProfile.get().setDashboardToken(token);
+
+        // Finally, update the chart.
+        updateChart();
+    }
+
+    private void createTradeListener(String tokenPair, String unit) {
+        // Cancel the trade listener if we have one already.
+        if (tradesListener != null) {
+            tradesListener.close();
+        }
+
+        // Create trade listener for graph.
+        tradesListener = TradingManager.get().createListener(tokenPair, price -> {
+            Platform.runLater(() -> addMarketTransaction(price, timeFormat.format(new Date()), unit, false));
+        });
     }
 
     private void createPriceGraph(VBox graphBox) {
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
-        LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
+        xAxis = new NumberAxis();
+        yAxis = new NumberAxis();
+
+        chart = new LineChart<>(xAxis, yAxis);
 
         yAxis.setAutoRanging(false);
         yAxis.setTickMarkVisible(false);
@@ -76,11 +141,10 @@ public class DashboardManager {
             }
         });
 
-        chart.setTitle("24h " + token + " Prices");
         chart.setCreateSymbols(false);
         chart.setAnimated(false);
 
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        series = new XYChart.Series<>();
         series.setName("Price");
         chart.getData().add(series);
 
@@ -88,92 +152,42 @@ public class DashboardManager {
         chart.lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
 
         graphBox.getChildren().add(chart);
-
-        startWebHook(series, yAxis);
     }
 
-    private void startWebHook(XYChart.Series<Number, Number> series, NumberAxis yAxis) {
-        try {
-            fetchHistoricData(series, yAxis); // Fetch historic data
+    private Transaction addMarketTransaction(double price, String time, String unit, boolean bulkData) {
+        Transaction transaction = new Transaction(token, Utilities.FORMAT_TWO_DECIMAL_PLACE.format(price) + " " + unit, time, price, lastPrice);
 
-            WebSocketClient client = new WebSocketClient(new URI(WS_API_URL)) {
-                @Override
-                public void onOpen(ServerHandshake handshake) {
-                    send("{\"event\":\"subscribe\",\"channel\":\"ticker\",\"symbol\":\"t" + token.replace("-", "") + "\"}");
-                }
-
-                @Override
-                public void onMessage(String message) {
-                    String[] split = message.split(",\\[");
-
-                    if (split.length > 1) {
-                        String[] data = split[1].split(",");
-                        double price = Double.parseDouble(data[0]);
-                        cryptoPrices.add(price);
-
-                        Platform.runLater(() -> {
-                            addMarketTransaction(price, timeFormat.format(new Date()));
-                            updateChart(series, cryptoPrices, yAxis);
-                        });
-                    }
-                }
-
-                @Override
-                public void onClose(int code, String reason, boolean remote) {
-                }
-
-                @Override
-                public void onError(Exception ex) {
-                    ex.printStackTrace();
-                }
-            };
-
-            client.connect();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void addMarketTransaction(double price, String time) {
-        transactions.add(0, new Transaction(token, "£" + ((int) price), time, price, lastPrice));
+        // Cache price locally.
         lastPrice = price;
-    }
 
-    private void fetchHistoricData(XYChart.Series<Number, Number> series, NumberAxis yAxis) throws Exception {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(apiUrl)
-                .build();
-
-        Response response = client.newCall(request).execute();
-        String json = response.body().string();
-
-        JSONArray data = new JSONObject(json).getJSONObject("data").getJSONArray("prices");
-
-        for (int i = 0; i < data.length(); i++) {
-            JSONObject object = data.getJSONObject(i);
-
-            double price = object.getDouble("price");
-            String timestamp = object.getString("time");
-
-            cryptoPrices.add(price);
-            addMarketTransaction(price, timestamp.split("T")[1].replace("Z", ""));
+        // Only update the graph in intervals (5 mins) to preserve the scale.
+        if (bulkData || System.currentTimeMillis() - lastGraphUpdate > 300_000) {
+            graphData.add(price);
+            lastGraphUpdate = System.currentTimeMillis();
         }
 
-        Collections.reverse(cryptoPrices);
+        if (!bulkData) {
+            // Add the transaction.
+            transactions.add(0, transaction);
 
-        updateChart(series, cryptoPrices, yAxis);
+            // Update the chart visuals.
+            updateChart();
+            return null;
+        }
+
+        return transaction;
     }
 
-    private void updateChart(XYChart.Series<Number, Number> series, List<Double> prices, NumberAxis yAxis) {
+    private void updateChart() {
         series.getData().clear();
-        for (int i = 0; i < prices.size(); i++) {
-            double price = prices.get(i);
+
+        for (int i = 0; i < graphData.size(); i++) {
+            double price = graphData.get(i);
             series.getData().add(new XYChart.Data<>(i + 1, price));
         }
 
-        double minPrice = prices.stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
-        double maxPrice = prices.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+        double minPrice = graphData.stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
+        double maxPrice = graphData.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
         yAxis.setLowerBound(minPrice);
         yAxis.setUpperBound(maxPrice);
     }

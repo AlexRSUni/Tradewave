@@ -14,6 +14,8 @@ module me.alex.cryptotrader {
     opens me.alex.cryptotrader.controller.element to javafx.fxml;
 
     exports me.alex.cryptotrader;
+    exports me.alex.cryptotrader.util;
+    exports me.alex.cryptotrader.util.binance;
     exports me.alex.cryptotrader.profile;
     exports me.alex.cryptotrader.models;
     exports me.alex.cryptotrader.factory;

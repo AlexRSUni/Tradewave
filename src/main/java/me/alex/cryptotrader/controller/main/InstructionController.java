@@ -2,6 +2,7 @@ package me.alex.cryptotrader.controller.main;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -20,7 +21,11 @@ import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.DatabaseUtils;
+import me.alex.cryptotrader.util.Utilities;
 import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class InstructionController extends BaseController {
 
@@ -50,12 +55,17 @@ public class InstructionController extends BaseController {
     private Label lblTokenIn;
     @FXML
     private Label lblTokenOut;
+    @FXML
+    private Label lblEstimatedPurchase;
+    @FXML
+    private Label lblEstimatedTransaction;
 
     // Variables
 
     private ConfigurationManager manager;
-
     private Instruction selectedInstruction;
+    private Timer valueTask;
+
     private boolean newInstruction;
 
     @FXML
@@ -146,6 +156,28 @@ public class InstructionController extends BaseController {
 
         // Setup text box listener for value change.
         txtAmount.textProperty().addListener((observable, oldValue, newValue) -> comboPeriod.setDisable(!newValue.contains("%")));
+
+        String targetTokenName = manager.getCurrentStrategy().getTokenPairNames()[1];
+
+        valueTask = new Timer();
+
+        valueTask.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                String transaction = txtTransaction.getText();
+
+                Platform.runLater(() -> {
+                    // Update the label with current market value.
+                    lblEstimatedPurchase.setText("(LIVE: " + Utilities.FORMAT_TWO_DECIMAL_PLACE.format(manager.getTradesListener().getCurrentPrice())
+                            + " " + targetTokenName + ")");
+
+                    if (NumberUtils.isCreatable(transaction)) {
+                        lblEstimatedTransaction.setText("(" + Utilities.FORMAT_TWO_DECIMAL_PLACE.format(manager.getTradesListener().getCurrentPrice() * Double.parseDouble(transaction))
+                                + " " + targetTokenName + ")");
+                    }
+                });
+            }
+        }, 0, 1000L);
     }
 
     public void selectInstruction(Instruction instruction) {
@@ -320,6 +352,7 @@ public class InstructionController extends BaseController {
     @FXML
     public void backToStrategies() {
         manager.setCurrentStrategy(null, true);
+        valueTask.cancel();
     }
 
 }

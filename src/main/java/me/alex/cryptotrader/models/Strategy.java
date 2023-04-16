@@ -23,7 +23,7 @@ public class Strategy {
     }
 
     public String[] getTokenPairNames() {
-        return Utilities.getTokenPairNames(token.get());
+        return Utilities.splitTokenPairSymbols(token.get());
     }
 
     public int getId() {

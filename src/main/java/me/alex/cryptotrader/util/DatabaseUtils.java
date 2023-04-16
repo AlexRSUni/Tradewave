@@ -202,7 +202,7 @@ public class DatabaseUtils {
             query.setString(2, new BCryptPasswordEncoder().encode(password));
             query.setString(3, Utilities.encryptStringUsingPassword(apiKey, password));
             query.setString(4, Utilities.encryptStringUsingPassword(secretKey, password));
-            query.setString(5, "BTC-USD");
+            query.setString(5, "BTCUSDT");
             query.setBoolean(6, false);
 
             query.executeUpdate();

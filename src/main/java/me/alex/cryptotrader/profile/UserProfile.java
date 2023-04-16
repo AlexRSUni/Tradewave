@@ -74,11 +74,13 @@ public class UserProfile {
         try (
                 Connection connection = DriverManager.getConnection(DB_URL);
                 PreparedStatement query = connection.prepareStatement("UPDATE users SET " +
-                        "stayLoggedIn = ? " +
+                        "stayLoggedIn = ?, " +
+                        "preferredToken = ? " +
                         "WHERE username = ?")
         ) {
             query.setBoolean(1, stayLoggedIn);
-            query.setString(2, username);
+            query.setString(2, dashboardToken);
+            query.setString(3, username);
 
             query.executeUpdate();
         } catch (SQLException e) {
@@ -114,6 +116,10 @@ public class UserProfile {
 
     private void loadStrategies() {
         strategies.addAll(DatabaseUtils.loadStrategies(username));
+    }
+
+    public void setDashboardToken(String dashboardToken) {
+        this.dashboardToken = dashboardToken;
     }
 
     public void setStayLoggedIn(boolean bool) {

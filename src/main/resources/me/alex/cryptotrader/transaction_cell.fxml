@@ -7,25 +7,25 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="54.0" prefWidth="266.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane prefHeight="70.0" prefWidth="266.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
     <effect>
         <DropShadow />
     </effect>
-    <Label fx:id="dateLabel" layoutX="52.0" layoutY="18.0" text="2023-12-04">
+    <Label fx:id="dateLabel" layoutX="71.0" layoutY="38.0" text="23:00:00">
       <font>
          <Font name="System Italic" size="12.0" />
       </font></Label>
-    <Label fx:id="typeLabel" layoutX="119.0" layoutY="17.0" text="BTCUSD">
+    <Label fx:id="typeLabel" layoutX="62.0" layoutY="18.0" text="BTCUSDT">
         <font>
             <Font name="System Bold" size="14.0" />
         </font>
     </Label>
-    <Label fx:id="priceLabel" alignment="CENTER" layoutX="198.0" layoutY="14.0" prefHeight="27.0" prefWidth="62.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="£30,000" textFill="WHITE">
+    <Label fx:id="priceLabel" alignment="CENTER" layoutX="135.0" layoutY="12.0" prefHeight="47.0" prefWidth="125.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="30,000.00 USDT" textFill="WHITE">
         <font>
             <Font name="System Bold" size="14.0" />
         </font>
     </Label>
-    <ImageView fitHeight="44.0" fitWidth="37.0" layoutX="6.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+    <ImageView fitHeight="47.0" fitWidth="45.0" layoutX="7.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
         <Image url="@../../../images/transaction.png" />
     </ImageView>
 </AnchorPane>

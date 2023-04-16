@@ -3,6 +3,8 @@ package me.alex.cryptotrader.util;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import javafx.concurrent.Task;
+import javafx.util.Pair;
 import me.alex.cryptotrader.CryptoApplication;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,10 +17,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
+import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Utilities {
 
+    public static final DecimalFormat FORMAT_TWO_DECIMAL_PLACE = new DecimalFormat("#,###.##");
     public static final DecimalFormat FORMAT_ONE_DECIMAL_PLACE = new DecimalFormat("#,###.#");
 
     private static final String ALGORITHM = "AES";
@@ -26,7 +32,21 @@ public class Utilities {
 
     private static final Map<String, String> SYMBOL_TO_NAME = new HashMap<>();
 
-    public static String[] getTokenPairNames(String tokenPair) {
+    public static void runTask(Runnable runnable) {
+        Task<Void> fetchTradingPairsTask = new Task<>() {
+            @Override
+            protected Void call() {
+                runnable.run();
+                return null;
+            }
+        };
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(fetchTradingPairsTask);
+        executorService.shutdown();
+    }
+
+    public static String[] splitTokenPairSymbols(String tokenPair) {
         String[] data = new String[2];
 
         for (String token : CryptoApplication.get().getAvailableCurrencies()) {
@@ -42,6 +62,43 @@ public class Utilities {
 
     public static String getSymbolName(String symbol) {
         return SYMBOL_TO_NAME.getOrDefault(symbol, symbol);
+    }
+
+    public static List<Pair<Long, Double>> fetchHistoryTradingData(String symbol, String interval, long timePeriodSeconds) {
+        List<Pair<Long, Double>> historicData = new ArrayList<>();
+        OkHttpClient client = new OkHttpClient();
+
+        long startTime = Instant.now().minusSeconds(timePeriodSeconds).toEpochMilli();
+        long endTime = Instant.now().toEpochMilli();
+
+        String url = "https://api.binance.com/api/v3/klines?symbol=" + symbol + "&interval=" + interval + "&startTime=" + startTime + "&endTime=" + endTime;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            String jsonResponse = response.body().string();
+            JSONArray jsonArray = new JSONArray(jsonResponse);
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONArray klineData = jsonArray.getJSONArray(i);
+
+                long openTime = klineData.getLong(0);
+//                double open = klineData.getDouble(1);
+//                double high = klineData.getDouble(2);
+//                double low = klineData.getDouble(3);
+                double close = klineData.getDouble(4);
+
+                historicData.add(new Pair<>(openTime, close));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return historicData;
     }
 
     public static void fetchTokenToNameData() {
