@@ -3,6 +3,7 @@ package me.alex.cryptotrader.models;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import me.alex.cryptotrader.controller.element.InstructionCellController;
+import me.alex.cryptotrader.instruction.ConditionType;
 import me.alex.cryptotrader.util.Utilities;
 
 import java.util.Arrays;
@@ -38,19 +39,38 @@ public class Instruction {
         setRawAmount(amount);
     }
 
+    /**
+     * Convert raw data string to a formatted readable instruction.
+     * BUY#PRICE_SINCE_LAST_TRANSACTION:RISES_ABOVE:30000#0.1
+     */
     private String getFormattedAction() {
         String[] names = strategy.getTokenPairNames();
-        String formatted = "When " + names[0] + " price ";
+        ConditionType condition = ConditionType.valueOf(data[0]);
+
+        String formatted = "If ";
+
+        // Special handling for certain conditions and for conditions which include the token name.
+        if (condition == ConditionType.OWNED_TOKEN_AMOUNT) {
+            formatted += condition.name().replace("_", " ").replace("TOKEN", names[0]) + " ";
+        } else if (condition == ConditionType.OWNED_CURRENCY_AMOUNT) {
+            formatted += condition.name().replace("_", " ").replace("CURRENCY", names[1]) + " ";
+        } else {
+            if (condition.shouldIncludeTokenName()) {
+                formatted += names[0] + " ";
+            }
+
+            formatted += condition.name().replace("_", " ");
+        }
 
         switch (data.length) {
-            case 2 -> {
-                formatted += data[0].replace("_", " ") + " ";
-                formatted += Utilities.FORMAT_TWO_DECIMAL_PLACE.format(Double.parseDouble(data[1])) + " " + names[1];
-            }
             case 3 -> {
-                formatted += data[0].replace("_", " ") + " ";
-                formatted += data[1] + " over ";
-                formatted += data[2].replace("_", " ");
+                formatted += data[1].replace("_", " ") + " ";
+                formatted += Utilities.FORMAT_TWO_DECIMAL_PLACE.format(Double.parseDouble(data[2])) + " " + names[1];
+            }
+            case 4 -> {
+                formatted += data[1].replace("_", " ") + " ";
+                formatted += data[2] + " over ";
+                formatted += data[3].replace("_", " ");
             }
             default -> throw new RuntimeException("Invalid data when formatting action! {data="
                     + Arrays.toString(data) + "}");

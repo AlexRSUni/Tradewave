@@ -7,31 +7,31 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="background" prefHeight="85.0" prefWidth="530.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" styleClass="#544177" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="background" prefHeight="95.0" prefWidth="530.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" styleClass="#544177" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
     <effect>
         <DropShadow />
     </effect>
-    <Label fx:id="typeLabel" alignment="CENTER" layoutX="357.0" layoutY="14.0" prefHeight="58.0" prefWidth="58.0" style="-fx-background-color: #e82828; -fx-background-radius: 10px;" text="SELL" textFill="WHITE">
+    <Label fx:id="typeLabel" alignment="CENTER" layoutX="370.0" layoutY="19.0" prefHeight="58.0" prefWidth="58.0" style="-fx-background-color: #e82828; -fx-background-radius: 10px;" text="SELL" textFill="WHITE">
         <font>
             <Font name="System Bold" size="18.0" />
         </font>
     </Label>
-    <Label fx:id="priceLabel" alignment="CENTER" layoutX="425.0" layoutY="14.0" prefHeight="58.0" prefWidth="82.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="0.2 BTC" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+    <Label fx:id="priceLabel" alignment="CENTER" layoutX="436.0" layoutY="19.0" prefHeight="58.0" prefWidth="82.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="0.2 BTC" textAlignment="CENTER" textFill="WHITE" wrapText="true">
         <font>
             <Font name="System Bold" size="18.0" />
         </font>
     </Label>
-    <Label fx:id="actionLabel" alignment="CENTER" layoutX="111.0" layoutY="14.0" prefHeight="58.0" prefWidth="234.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" text="WHEN price DROPS-BELOW 10000" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+    <Label fx:id="actionLabel" alignment="CENTER" layoutX="101.0" layoutY="11.0" prefHeight="73.0" prefWidth="260.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" text="WHEN price DROPS-BELOW 10000" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+        <font>
+            <Font name="System Bold" size="16.0" />
+        </font>
+    </Label>
+    <Label fx:id="priorityLabel" alignment="CENTER" layoutX="51.0" layoutY="27.0" prefHeight="41.0" prefWidth="41.0" style="-fx-background-color: #F4B12B; -fx-background-radius: 10px;" text="1" textFill="WHITE">
         <font>
             <Font name="System Bold" size="18.0" />
         </font>
     </Label>
-    <Label fx:id="priorityLabel" alignment="CENTER" layoutX="56.0" layoutY="23.0" prefHeight="41.0" prefWidth="41.0" style="-fx-background-color: #F4B12B; -fx-background-radius: 10px;" text="1" textFill="WHITE">
-        <font>
-            <Font name="System Bold" size="18.0" />
-        </font>
-    </Label>
-    <ImageView fitHeight="35.0" fitWidth="36.0" layoutX="8.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
+    <ImageView fitHeight="35.0" fitWidth="36.0" layoutX="8.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true">
         <image>
             <Image url="@../../../images/drag.png" />
         </image>

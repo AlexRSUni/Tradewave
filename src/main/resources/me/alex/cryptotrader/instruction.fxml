@@ -50,70 +50,81 @@
                 <effect>
                     <DropShadow />
                 </effect>
-                <Text fill="#6166aa" layoutX="83.0" layoutY="33.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Edit Instruction">
+                <Text fill="#6166aa" layoutX="83.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Edit Instruction">
                     <font>
                         <Font name="System Bold" size="24.0" />
                     </font>
                 </Text>
-                <AnchorPane layoutX="14.0" layoutY="97.0" prefHeight="279.0" prefWidth="312.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
-                    <ComboBox fx:id="comboAction" layoutX="104.0" layoutY="47.0" prefHeight="40.0" prefWidth="175.0" promptText="Select action" style="-fx-background-color: white;" />
-                    <TextField fx:id="txtAmount" layoutX="104.0" layoutY="131.0" prefHeight="40.0" prefWidth="124.0" promptText="Amount or %" />
-                    <ComboBox fx:id="comboPeriod" disable="true" layoutX="104.0" layoutY="216.0" prefHeight="40.0" prefWidth="175.0" promptText="Select time range" style="-fx-background-color: white;" />
-                    <ImageView fitHeight="45.0" fitWidth="44.0" layoutX="33.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true">
+                <AnchorPane layoutX="14.0" layoutY="47.0" prefHeight="343.0" prefWidth="312.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
+                    <ComboBox fx:id="comboAction" disable="true" layoutX="104.0" layoutY="118.0" prefHeight="40.0" prefWidth="175.0" promptText="Select action" style="-fx-background-color: white;" />
+                    <TextField fx:id="txtAmount" disable="true" layoutX="104.0" layoutY="193.0" prefHeight="40.0" prefWidth="124.0" promptText="Amount or %" />
+                    <ComboBox fx:id="comboPeriod" disable="true" layoutX="104.0" layoutY="270.0" prefHeight="40.0" prefWidth="175.0" promptText="Select time range" style="-fx-background-color: white;" />
+                    <ImageView fitHeight="45.0" fitWidth="44.0" layoutX="31.0" layoutY="117.0" pickOnBounds="true" preserveRatio="true">
                         <Image url="@../../../images/strategy.png" />
                     </ImageView>
-                    <ImageView fitHeight="37.0" fitWidth="51.0" layoutX="30.0" layoutY="133.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="37.0" fitWidth="51.0" layoutX="28.0" layoutY="195.0" pickOnBounds="true" preserveRatio="true">
                         <Image url="@../../../images/fund.png" />
                     </ImageView>
-                    <Label layoutX="93.0" layoutY="11.0" text="WHEN PRICE" textFill="WHITE">
+                    <Label layoutX="148.0" layoutY="9.0" text="IF" textFill="WHITE">
                         <font>
                             <Font name="System Bold" size="18.0" />
                         </font>
                     </Label>
-                    <Label layoutX="49.0" layoutY="91.0" prefHeight="33.0" prefWidth="19.0" text="↓" textFill="WHITE">
+                    <Label layoutX="47.0" layoutY="159.0" prefHeight="33.0" prefWidth="19.0" text="↓" textFill="WHITE">
                         <font>
                             <Font name="System Bold" size="24.0" />
                         </font>
                     </Label>
-                    <Label layoutX="32.0" layoutY="179.0" text="OVER" textFill="WHITE">
+                    <Label layoutX="30.0" layoutY="244.0" text="OVER" textFill="WHITE">
                         <font>
                             <Font name="System Bold" size="18.0" />
                         </font>
                     </Label>
-                    <ImageView fitHeight="44.0" fitWidth="49.0" layoutX="34.0" layoutY="214.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="44.0" fitWidth="49.0" layoutX="32.0" layoutY="277.0" pickOnBounds="true" preserveRatio="true">
                         <Image url="@../../../images/time.png" />
                     </ImageView>
-               <Label fx:id="lblTokenIn" alignment="CENTER" layoutX="232.0" layoutY="130.0" prefHeight="43.0" prefWidth="51.0" text="USDT" textFill="WHITE">
+               <Label fx:id="lblTokenIn" alignment="CENTER" layoutX="232.0" layoutY="192.0" prefHeight="43.0" prefWidth="51.0" text="USDT" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
                </Label>
-               <Label fx:id="lblEstimatedPurchase" alignment="CENTER" layoutX="102.0" layoutY="172.0" prefHeight="28.0" prefWidth="179.0" textFill="WHITE">
+               <Label fx:id="lblEstimatedPurchase" alignment="CENTER" layoutX="102.0" layoutY="235.0" prefHeight="28.0" prefWidth="179.0" textFill="WHITE">
                   <font>
                      <Font name="System Italic" size="18.0" />
                   </font>
                </Label>
+               <ImageView fitHeight="55.0" fitWidth="49.0" layoutX="30.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../../../images/condition.png" />
+                  </image>
+               </ImageView>
+               <ComboBox fx:id="comboCondition" layoutX="103.0" layoutY="46.0" prefHeight="40.0" prefWidth="175.0" promptText="Select condition" style="-fx-background-color: white;" />
+               <Label layoutX="47.0" layoutY="81.0" prefHeight="33.0" prefWidth="19.0" text="↓" textFill="WHITE">
+                  <font>
+                     <Font name="System Bold" size="24.0" />
+                  </font>
+               </Label>
                 </AnchorPane>
-                <AnchorPane layoutX="14.0" layoutY="386.0" prefHeight="195.0" prefWidth="312.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
-                    <ImageView fitHeight="47.0" fitWidth="55.0" layoutX="28.0" layoutY="106.0" pickOnBounds="true" preserveRatio="true">
+                <AnchorPane layoutX="14.0" layoutY="406.0" prefHeight="184.0" prefWidth="312.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
+                    <ImageView fitHeight="47.0" fitWidth="55.0" layoutX="26.0" layoutY="100.0" pickOnBounds="true" preserveRatio="true">
                         <Image url="@../../../images/token2.png" />
                     </ImageView>
                     <ComboBox fx:id="comboBos" layoutX="104.0" layoutY="50.0" prefHeight="40.0" prefWidth="175.0" promptText="Buy or Sell?" style="-fx-background-color: white;" />
                     <ImageView fitHeight="43.0" fitWidth="53.0" layoutX="28.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true">
                         <Image url="@../../../images/bos.png" />
                     </ImageView>
-                    <Label layoutX="71.0" layoutY="13.0" text="THEN PURCHASE" textFill="WHITE">
+                    <Label layoutX="132.0" layoutY="11.0" text="THEN" textFill="WHITE">
                         <font>
                             <Font name="System Bold" size="18.0" />
                         </font>
                     </Label>
-                    <TextField fx:id="txtTransaction" layoutX="104.0" layoutY="110.0" prefHeight="40.0" prefWidth="124.0" promptText="Amount to trade" />
-               <Label fx:id="lblTokenOut" alignment="CENTER" layoutX="232.0" layoutY="108.0" prefHeight="43.0" prefWidth="51.0" text="BTC" textFill="WHITE">
+                    <TextField fx:id="txtTransaction" layoutX="104.0" layoutY="104.0" prefHeight="40.0" prefWidth="124.0" promptText="Amount to trade" />
+               <Label fx:id="lblTokenOut" alignment="CENTER" layoutX="232.0" layoutY="102.0" prefHeight="43.0" prefWidth="51.0" text="BTC" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
                </Label>
-               <Label fx:id="lblEstimatedTransaction" alignment="CENTER" layoutX="103.0" layoutY="150.0" prefHeight="28.0" prefWidth="174.0" textFill="WHITE">
+               <Label fx:id="lblEstimatedTransaction" alignment="CENTER" layoutX="103.0" layoutY="147.0" prefHeight="28.0" prefWidth="174.0" textFill="WHITE">
                   <font>
                      <Font name="System Italic" size="18.0" />
                   </font>
@@ -129,12 +140,12 @@
                   <Font name="System Bold" size="18.0" />
                </font>
             </JFXButton>
-            <JFXButton fx:id="btnCreate" buttonType="RAISED" layoutX="115.0" layoutY="596.0" onAction="#createInstruction" prefHeight="73.0" prefWidth="148.0" style="-fx-background-color: #6166aa;" text="Create" textFill="WHITE">
+            <JFXButton fx:id="btnCreate" buttonType="RAISED" layoutX="115.0" layoutY="608.0" onAction="#createInstruction" prefHeight="73.0" prefWidth="148.0" style="-fx-background-color: #6166aa;" text="Create" textFill="WHITE">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </JFXButton>
-            <Label fx:id="lblError" alignment="CENTER" layoutX="28.0" layoutY="43.0" prefHeight="44.0" prefWidth="277.0" textFill="RED" wrapText="true">
+            <Label fx:id="lblError" alignment="CENTER" layoutX="32.0" layoutY="7.0" prefHeight="30.0" prefWidth="277.0" textFill="RED" wrapText="true">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

@@ -13,6 +13,8 @@ import me.alex.cryptotrader.util.DatabaseUtils;
 import me.alex.cryptotrader.util.Utilities;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static me.alex.cryptotrader.util.DatabaseUtils.DB_URL;
@@ -22,6 +24,7 @@ public class UserProfile {
     private final ObservableList<Strategy> strategies = FXCollections.observableArrayList();
     private final ObservableList<Fund> funds = FXCollections.observableArrayList();
 
+    private final Map<String, Double> ownedTokens = new HashMap<>();
     private final String username;
 
     private Account binanceAccount;
@@ -107,6 +110,7 @@ public class UserProfile {
             double amount = Double.parseDouble(balance.getFree());
 
             if (amount > 0) {
+                ownedTokens.put(balance.getAsset(), amount);
                 funds.add(new Fund(balance.getAsset(), balance.getFree()));
             }
 
@@ -124,6 +128,10 @@ public class UserProfile {
 
     public void setStayLoggedIn(boolean bool) {
         this.stayLoggedIn = bool;
+    }
+
+    public double getOwnedToken(String token) {
+        return ownedTokens.getOrDefault(token, 0D);
     }
 
     public String getUsername() {
