@@ -40,7 +40,7 @@ public enum ConditionType {
         return supportedInstructions;
     }
 
-    public boolean hasTimePeriod() {
+    public boolean canHaveTimePeriod() {
         return hasTimePeriod;
     }
 

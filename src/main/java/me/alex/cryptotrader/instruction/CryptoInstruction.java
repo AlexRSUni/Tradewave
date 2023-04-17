@@ -1,16 +1,37 @@
 package me.alex.cryptotrader.instruction;
 
+import me.alex.cryptotrader.models.Instruction;
+import me.alex.cryptotrader.util.trading.TradingData;
+
 public abstract class CryptoInstruction {
 
-    private final ActionType type;
+    protected final Instruction instruction;
 
-    public CryptoInstruction(ActionType type) {
-        this.type = type;
+    public CryptoInstruction(Instruction instruction) {
+        this.instruction = instruction;
     }
 
-    abstract boolean shouldMakeTransaction(double price);
+    public abstract boolean checkCondition(long timestamp, double price, TradingData data);
 
-    public ActionType getType() {
-        return type;
+    protected Instruction getNext() {
+        return getAdjacent(1);
+    }
+
+    protected Instruction getPrevious() {
+        return getAdjacent(-1);
+    }
+
+    private Instruction getAdjacent(int i) {
+        int index = instruction.getStrategy().getInstructions().indexOf(instruction);
+
+        try {
+            return instruction.getStrategy().getInstructions().get(index + i);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public Instruction getInstruction() {
+        return instruction;
     }
 }

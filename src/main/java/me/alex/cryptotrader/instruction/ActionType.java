@@ -3,27 +3,27 @@ package me.alex.cryptotrader.instruction;
 public enum ActionType {
 
     // Price Condition
-    RISES_ABOVE(false, true),
-    DROPS_BELOW(false, true),
-    INCREASES_TO(false, true),
-    INCREASES_BY(true, true),
-    DECREASES_TO(false, true),
-    DECREASES_BY(true, true),
+    RISES_ABOVE(false, true, false),
+    DROPS_BELOW(false, true, false),
+    INCREASES_TO(false, true, false),
+    INCREASES_BY(true, true, true),
+    DECREASES_TO(false, true, false),
+    DECREASES_BY(true, true, true),
 
     // Market Condition
-    SKYROCKETING(false, false),
-    FAST_CLIMB(false, false),
-    CLIMBING(false, false),
-    UNSTABLE(false, false),
-    DECLINING(false, false),
-    FAST_DECLINE(false, false),
-    IN_FREEFALL(false, false),
+    SKYROCKETING(false, false, true),
+    FAST_CLIMB(false, false, true),
+    CLIMBING(false, false, true),
+    UNSTABLE(false, false, true),
+    DECLINING(false, false, true),
+    FAST_DECLINE(false, false, true),
+    IN_FREEFALL(false, false, true),
 
     // Wallet Condition
-    IS_EQUAL_TO(false, true),
-    IS_NOT_EQUAL_TO(false, true),
-    IS_LESS_THAN(false, true),
-    IS_MORE_THAN(false, true),
+    IS_EQUAL_TO(false, true, false),
+    IS_NOT_EQUAL_TO(false, true, false),
+    IS_LESS_THAN(false, true, false),
+    IS_MORE_THAN(false, true, false),
     ;
 
     public static final ActionType[] PRICE_CONDITIONS = new ActionType[]{
@@ -40,10 +40,12 @@ public enum ActionType {
 
     private final boolean canHavePercentage;
     private final boolean canInputValue;
+    private final boolean canHaveTimePeriod;
 
-    ActionType(boolean canHavePercentage, boolean canInputValue) {
+    ActionType(boolean canHavePercentage, boolean canInputValue, boolean canHaveTimePeriod) {
         this.canHavePercentage = canHavePercentage;
         this.canInputValue = canInputValue;
+        this.canHaveTimePeriod = canHaveTimePeriod;
     }
 
     public boolean canHavePercentage() {
@@ -52,6 +54,10 @@ public enum ActionType {
 
     public boolean canInputValue() {
         return canInputValue;
+    }
+
+    public boolean canHaveTimePeriod() {
+        return canHaveTimePeriod;
     }
 
 }

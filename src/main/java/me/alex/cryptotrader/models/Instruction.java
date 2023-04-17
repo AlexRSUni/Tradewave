@@ -1,24 +1,32 @@
 package me.alex.cryptotrader.models;
 
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import me.alex.cryptotrader.controller.element.InstructionCellController;
 import me.alex.cryptotrader.instruction.ActionType;
 import me.alex.cryptotrader.instruction.ConditionType;
+import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.instruction.TimePeriod;
-import org.apache.commons.lang3.math.NumberUtils;
+import me.alex.cryptotrader.instruction.impl.ActionInstruction;
+import me.alex.cryptotrader.instruction.impl.IfInstruction;
+import me.alex.cryptotrader.instruction.impl.StopInstruction;
+import me.alex.cryptotrader.instruction.impl.WaitInstruction;
 
 public class Instruction {
 
     // Core variables.
     private final Strategy strategy;
     private final InstructionType type;
+    private final CryptoInstruction instructionImpl;
     private final int id;
 
     // Instruction variables.
     private ConditionType condition;
     private ActionType action;
     private TimePeriod timePeriod;
-    private double value;
+    private String value;
     private int priority;
 
     // Interface variables.
@@ -35,10 +43,15 @@ public class Instruction {
         this.type = type;
         parseRawData(data);
 
+        // Setup interface properties.
         this.conditionProperty = new SimpleObjectProperty<>(this, "Condition", condition);
         this.actionProperty = new SimpleObjectProperty<>(this, "Action", action);
-        this.timePeriodProperty = new SimpleObjectProperty<>(this, "Action", timePeriod);
-        this.valueProperty = new SimpleStringProperty(this, "Value", String.valueOf(value));
+        this.timePeriodProperty = new SimpleObjectProperty<>(this, "Period", timePeriod);
+        this.valueProperty = new SimpleStringProperty(this, "Value", value);
+
+        // Create instruction implementation.
+        InstructionType.ManagerConstructor constructor = type.getConstructor();
+        this.instructionImpl = constructor == null ? null : constructor.construct(this);
     }
 
     private void parseRawData(String data) {
@@ -60,7 +73,7 @@ public class Instruction {
             timePeriod = TimePeriod.valueOf(split[2]);
         }
 
-        value = Double.parseDouble(split[3]);
+        value = split[3];
     }
 
     public String getRawData() {
@@ -118,11 +131,11 @@ public class Instruction {
     }
 
     public void setValue(String value) {
-        this.value = NumberUtils.toDouble(value, 0);
+        this.value = value;
         this.valueProperty.set(value);
     }
 
-    public double getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -150,23 +163,42 @@ public class Instruction {
         return strategy;
     }
 
+    public CryptoInstruction getInstructionImpl() {
+        return instructionImpl;
+    }
+
     public int getId() {
         return id;
     }
 
     public enum InstructionType {
 
-        IF,
-        ELSE_IF,
-        ELSE,
-        END_IF,
-        ACTION,
-        VALUE,
-        WAIT,
-        STOP;
+        IF(IfInstruction::new),
+        ELSE_IF(IfInstruction::new),
+        ACTION(ActionInstruction::new),
+        WAIT(WaitInstruction::new),
+        STOP(StopInstruction::new),
+        ELSE(null),
+        END_IF(null),
+        VALUE(null),
+        ;
+
+        private final ManagerConstructor constructor;
+
+        InstructionType(ManagerConstructor constructor) {
+            this.constructor = constructor;
+        }
 
         public String getFilename() {
             return "instruction_cell_" + name().toLowerCase() + ".fxml";
+        }
+
+        public ManagerConstructor getConstructor() {
+            return constructor;
+        }
+
+        public interface ManagerConstructor {
+            CryptoInstruction construct(Instruction instruction);
         }
 
     }

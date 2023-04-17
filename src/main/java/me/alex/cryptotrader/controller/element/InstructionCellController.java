@@ -40,11 +40,12 @@ public class InstructionCellController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
-            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
-            comboAction.valueProperty().bindBidirectional(instruction.actionProperty());
 
+            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
             comboCondition.setItems(FXCollections.observableArrayList(ConditionType.CONDITIONS));
             comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+
+            comboAction.valueProperty().bindBidirectional(instruction.actionProperty());
             comboAction.valueProperty().addListener((observable, oldValue, newValue) -> onActionSelected(newValue));
 
             onConditionSelected(instruction.getCondition());
@@ -53,27 +54,32 @@ public class InstructionCellController implements Initializable {
             comboAction.setDisable(comboCondition.getSelectionModel().isEmpty() || comboCondition.getSelectionModel().getSelectedItem().getSupportedInstructions().isEmpty());
 
         } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
-            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
 
+            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
             comboCondition.setItems(FXCollections.observableArrayList(ConditionType.ACTION_CONDITIONS));
             comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+
+            txtValue.textProperty().bindBidirectional(instruction.valueProperty());
+            txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
 
             onConditionSelected(instruction.getCondition());
 
         } else if (instruction.getType() == Instruction.InstructionType.WAIT) {
+
             comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
-            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.values()));
+            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.SHORT));
             comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
 
         } else if (instruction.getType() == Instruction.InstructionType.VALUE) {
+
             comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
+            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.SHORT));
+            comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
+
             txtValue.textProperty().bindBidirectional(instruction.valueProperty());
+            txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
 
             invalidateInstruction();
-
-            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.values()));
-            comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
-            txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
         }
 
         // Assign the background pane, so we can recolor it later.
@@ -84,6 +90,7 @@ public class InstructionCellController implements Initializable {
     public void deleteInstruction() {
         ConfigurationManager.get().getCurrentStrategy().getInstructions().remove(instruction);
         DatabaseUtils.deleteInstruction(instruction);
+        instruction.getStrategy().updateStrategy();
     }
 
     public void invalidateInstruction() {
@@ -114,7 +121,7 @@ public class InstructionCellController implements Initializable {
                         valueEnabled = true;
                     }
 
-                    comboEnabled = condition.hasTimePeriod();
+                    comboEnabled = (action == null || action.canHaveTimePeriod()) && condition.canHaveTimePeriod();
                 }
             }
         }
@@ -137,6 +144,8 @@ public class InstructionCellController implements Initializable {
             }
 
             if (txtValue != null) {
+                txtValue.setDisable(false);
+
                 if (type == ConditionType.BUY_AS_MUCH_AS_POSSIBLE || type == ConditionType.SELL_ALL) {
                     txtValue.setDisable(true);
                     instruction.setValue("0");
@@ -145,6 +154,11 @@ public class InstructionCellController implements Initializable {
 
         }
 
+        notifyInstructionUpdated();
+    }
+
+    private void onActionSelected(ActionType type) {
+        instruction.setAction(type);
         notifyInstructionUpdated();
     }
 
@@ -167,11 +181,6 @@ public class InstructionCellController implements Initializable {
                 }
             }
         }
-    }
-
-    private void onActionSelected(ActionType type) {
-        instruction.setAction(type);
-        notifyInstructionUpdated();
     }
 
     private void onTimePeriodSelected(TimePeriod type) {

@@ -6,37 +6,37 @@ import javafx.beans.property.StringProperty;
 public class Transaction {
 
     private final StringProperty type;
+    private final StringProperty price;
     private final StringProperty amount;
     private final StringProperty date;
 
-    private final double rawPrice;
-    private final double lastPrice;
+    private final String boxColor;
 
-    public Transaction(String type, String amount, String date, double rawPrice, double lastPrice) {
-        this.type = new SimpleStringProperty(this, "Type", type);
+    public Transaction(String token, String price, String amount, String time, String boxColor) {
+        this.type = new SimpleStringProperty(this, "Type", token);
+        this.price = new SimpleStringProperty(this, "Price", price);
         this.amount = new SimpleStringProperty(this, "Amount", amount);
-        this.date = new SimpleStringProperty(this, "Date", date);
-        this.rawPrice = rawPrice;
-        this.lastPrice = lastPrice;
-    }
-
-    public StringProperty typeProperty() {
-        return type;
+        this.date = new SimpleStringProperty(this, "Date", time);
+        this.boxColor = boxColor;
     }
 
     public StringProperty amountProperty() {
         return amount;
     }
 
+    public StringProperty typeProperty() {
+        return type;
+    }
+
+    public StringProperty priceProperty() {
+        return price;
+    }
+
     public StringProperty dateProperty() {
         return date;
     }
 
-    public double getRawPrice() {
-        return rawPrice;
-    }
-
-    public double getLastPrice() {
-        return lastPrice;
+    public String getBoxColor() {
+        return boxColor;
     }
 }

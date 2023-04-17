@@ -37,13 +37,13 @@ public class StrategyCellController implements Initializable {
     }
 
     @FXML
-    private void editStrategy() {
+    public void editStrategy() {
         StrategyController controller = ViewManager.get().getController(ViewManager.get().getStrategyView());
         controller.getManager().setCurrentStrategy(strategy, false);
     }
 
     @FXML
-    private void deleteStrategy() {
+    public void deleteStrategy() {
         UserProfile.get().getStrategies().remove(strategy);
         DatabaseUtils.deleteStrategy(strategy);
         DashboardController.get().updateStrategyStatus();

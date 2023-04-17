@@ -4,6 +4,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
 import javafx.util.Pair;
 import me.alex.cryptotrader.CryptoApplication;
 import org.json.JSONArray;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +26,7 @@ import java.util.concurrent.Executors;
 
 public class Utilities {
 
+    public static final SimpleDateFormat SHORT_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
     public static final DecimalFormat FORMAT_TWO_DECIMAL_PLACE = new DecimalFormat("#,###.##");
     public static final DecimalFormat FORMAT_ONE_DECIMAL_PLACE = new DecimalFormat("#,###.#");
 
@@ -46,6 +49,14 @@ public class Utilities {
         executorService.shutdown();
     }
 
+    public static void sendErrorAlert(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error!");
+        alert.setHeaderText(header);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     public static String[] splitTokenPairSymbols(String tokenPair) {
         String[] data = new String[2];
 
@@ -64,12 +75,15 @@ public class Utilities {
         return SYMBOL_TO_NAME.getOrDefault(symbol, symbol);
     }
 
-    public static List<Pair<Long, Double>> fetchHistoryTradingData(String symbol, String interval, long timePeriodSeconds) {
-        List<Pair<Long, Double>> historicData = new ArrayList<>();
-        OkHttpClient client = new OkHttpClient();
-
+    public static List<double[]> fetchHistoryTradingData(String symbol, String interval, long timePeriodSeconds) {
         long startTime = Instant.now().minusSeconds(timePeriodSeconds).toEpochMilli();
         long endTime = Instant.now().toEpochMilli();
+        return fetchHistoryTradingData(symbol, interval, startTime, endTime);
+    }
+
+    public static List<double[]> fetchHistoryTradingData(String symbol, String interval, long startTime, long endTime) {
+        List<double[]> historicData = new ArrayList<>();
+        OkHttpClient client = new OkHttpClient();
 
         String url = "https://api.binance.com/api/v3/klines?symbol=" + symbol + "&interval=" + interval + "&startTime=" + startTime + "&endTime=" + endTime;
 
@@ -87,12 +101,12 @@ public class Utilities {
                 JSONArray klineData = jsonArray.getJSONArray(i);
 
                 long openTime = klineData.getLong(0);
-//                double open = klineData.getDouble(1);
-//                double high = klineData.getDouble(2);
-//                double low = klineData.getDouble(3);
+                double open = klineData.getDouble(1);
+                double high = klineData.getDouble(2);
+                double low = klineData.getDouble(3);
                 double close = klineData.getDouble(4);
 
-                historicData.add(new Pair<>(openTime, close));
+                historicData.add(new double[]{openTime, open, high, low, close});
             }
         } catch (IOException e) {
             e.printStackTrace();

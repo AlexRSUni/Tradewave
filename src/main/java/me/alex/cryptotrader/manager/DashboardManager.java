@@ -7,22 +7,18 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 import javafx.util.StringConverter;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.binance.AggTradesListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 public class DashboardManager {
-
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
     // Data displayed on graphs.
     private final ObservableList<Transaction> transactions;
@@ -37,7 +33,7 @@ public class DashboardManager {
     private NumberAxis xAxis, yAxis;
 
     // Selection combo box.
-    private ComboBox<String> comboBox;
+    private final ComboBox<String> comboBox;
 
     // Trading data.
     private String token;
@@ -74,7 +70,7 @@ public class DashboardManager {
         createTradeListener(token, unit);
 
         // Fetch historic data.
-        List<Pair<Long, Double>> historicData = Utilities.fetchHistoryTradingData(token, "5m", 24 * 60 * 60);
+        List<double[]> historicData = Utilities.fetchHistoryTradingData(token, "5m", 24 * 60 * 60);
 
         // If no data is found, just reset the token.
         if (historicData.isEmpty()) {
@@ -91,7 +87,7 @@ public class DashboardManager {
         List<Transaction> bulkTransactions = new ArrayList<>();
 
         // Add all historic data to the graph.
-        historicData.forEach(pair -> bulkTransactions.add(addMarketTransaction(pair.getValue(), timeFormat.format(new Date(pair.getKey())), unit, true)));
+        historicData.forEach(data -> bulkTransactions.add(addMarketTransaction(data[4], Utilities.SHORT_TIME_FORMAT.format(new Date((long) data[0])), unit, true)));
 
         Collections.reverse(bulkTransactions);
         transactions.addAll(bulkTransactions);
@@ -111,7 +107,7 @@ public class DashboardManager {
 
         // Create trade listener for graph.
         tradesListener = TradingManager.get().createListener(tokenPair, price -> {
-            Platform.runLater(() -> addMarketTransaction(price, timeFormat.format(new Date()), unit, false));
+            Platform.runLater(() -> addMarketTransaction(price, Utilities.SHORT_TIME_FORMAT.format(new Date()), unit, false));
         });
     }
 
@@ -155,7 +151,13 @@ public class DashboardManager {
     }
 
     private Transaction addMarketTransaction(double price, String time, String unit, boolean bulkData) {
-        Transaction transaction = new Transaction(token, Utilities.FORMAT_TWO_DECIMAL_PLACE.format(price) + " " + unit, time, price, lastPrice);
+        Transaction transaction = new Transaction(
+                token,
+                Utilities.FORMAT_TWO_DECIMAL_PLACE.format(price) + " " + unit,
+                null,
+                time,
+                price > lastPrice ? "green" : price == lastPrice ? "gray" : "red"
+        );
 
         // Cache price locally.
         lastPrice = price;

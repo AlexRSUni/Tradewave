@@ -23,4 +23,5 @@ module me.alex.cryptotrader {
     exports me.alex.cryptotrader.controller.main;
     exports me.alex.cryptotrader.controller.element;
     exports me.alex.cryptotrader.manager;
+    exports me.alex.cryptotrader.util.trading;
 }

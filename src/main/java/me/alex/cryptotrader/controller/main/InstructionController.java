@@ -4,7 +4,6 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -26,7 +25,7 @@ import me.alex.cryptotrader.util.ValidationUtils;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class NewInstructionController extends BaseController {
+public class InstructionController extends BaseController {
 
     @FXML
     private JFXButton btnIf;
@@ -118,13 +117,7 @@ public class NewInstructionController extends BaseController {
             valueTask.cancel();
 
         } else {
-
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error!");
-            alert.setHeaderText("Formatting error in Instructions list!");
-            alert.setContentText(error);
-            alert.showAndWait();
-
+            Utilities.sendErrorAlert("Formatting error in Instructions list!", error);
         }
     }
 

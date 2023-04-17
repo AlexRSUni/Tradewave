@@ -23,7 +23,7 @@ public class ValidationUtils {
                 }
 
             } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
-                if (instruction.getCondition() == null || instruction.valueProperty().get().isEmpty()) {
+                if (instruction.getCondition() == null || instruction.getValue().isEmpty()) {
                     return "ACTION on line " + (i + 1) + " is not filled out!";
                 }
 

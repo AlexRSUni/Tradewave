@@ -48,7 +48,7 @@ public class DashboardController extends BaseController {
 
         // Setup transaction list.
         transactionList.setItems(transactions);
-        transactionList.setCellFactory(e -> new TransactionCellFactory());
+        transactionList.setCellFactory(e -> new TransactionCellFactory(false));
 
         // Setup funds list.
         fundList.setItems(UserProfile.get().getFunds());

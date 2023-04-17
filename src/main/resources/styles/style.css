@@ -34,3 +34,11 @@
    -fx-opacity: 0;
    -fx-padding: -7;
 }
+
+.chart-symbol.buy-point {
+    -fx-background-color: #20DD17;
+}
+
+.chart-symbol.sell-point {
+    -fx-background-color: red;
+}

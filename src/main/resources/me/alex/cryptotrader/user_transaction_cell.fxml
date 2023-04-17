@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="70.0" prefWidth="300.0" style="-fx-background-color: #f3eaf4; -fx-background-radius: 10px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+    <effect>
+        <DropShadow />
+    </effect>
+    <Label fx:id="dateLabel" layoutX="62.0" layoutY="38.0" text="23:00:00">
+      <font>
+         <Font name="System Italic" size="12.0" />
+      </font></Label>
+    <Label fx:id="typeLabel" layoutX="53.0" layoutY="18.0" text="BTCUSDT">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Label>
+    <Label fx:id="priceLabel" alignment="CENTER" layoutX="190.0" layoutY="12.0" prefHeight="47.0" prefWidth="103.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="30,000.00 USDT" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+        <font>
+            <Font name="System Bold" size="14.0" />
+        </font>
+    </Label>
+    <ImageView fitHeight="47.0" fitWidth="45.0" layoutX="3.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
+        <Image url="@../../../images/transaction.png" />
+    </ImageView>
+   <Label fx:id="amountLabel" alignment="CENTER" layoutX="126.0" layoutY="12.0" prefHeight="47.0" prefWidth="53.0" style="-fx-background-color: #6166B2; -fx-background-radius: 10px;" text="0.5 BTC" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+      <font>
+         <Font name="System Bold" size="14.0" />
+      </font>
+   </Label>
+</AnchorPane>

@@ -8,6 +8,12 @@ import me.alex.cryptotrader.models.Transaction;
 
 public class TransactionCellFactory extends ListCell<Transaction> {
 
+    private final boolean userTransactions;
+
+    public TransactionCellFactory(boolean userTransactions) {
+        this.userTransactions = userTransactions;
+    }
+
     @Override
     protected void updateItem(Transaction transaction, boolean empty) {
         super.updateItem(transaction, empty);
@@ -16,7 +22,7 @@ public class TransactionCellFactory extends ListCell<Transaction> {
             setText(null);
             setGraphic(null);
         } else {
-            FXMLLoader loader = new FXMLLoader(CryptoApplication.class.getResource("transaction_cell.fxml"));
+            FXMLLoader loader = new FXMLLoader(CryptoApplication.class.getResource((userTransactions ? "user_" : "") + "transaction_cell.fxml"));
             TransactionCellController controller = new TransactionCellController(transaction);
             loader.setController(controller);
 
