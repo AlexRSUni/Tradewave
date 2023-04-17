@@ -73,7 +73,9 @@ public class Instruction {
             timePeriod = TimePeriod.valueOf(split[2]);
         }
 
-        value = split[3];
+        if (!split[3].equalsIgnoreCase("null")) {
+            value = split[3];
+        }
     }
 
     public String getRawData() {
