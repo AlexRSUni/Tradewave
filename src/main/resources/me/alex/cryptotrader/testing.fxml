@@ -98,13 +98,13 @@
                <DropShadow />
             </effect>
             <children>
-               <ComboBox fx:id="comboStrategy" layoutX="122.0" layoutY="20.0" prefHeight="37.0" prefWidth="274.0" promptText="Select a Strategy" style="-fx-background-color: white;" />
+               <ComboBox fx:id="comboStrategy" layoutX="122.0" layoutY="20.0" prefHeight="37.0" prefWidth="274.0" promptText="Select a Strategy" style="-fx-background-color: white; -fx-font-weight: bold;" />
                <ImageView fitHeight="50.0" fitWidth="40.0" layoutX="55.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
                   <image>
                      <Image url="@../../../images/strategy.png" />
                   </image>
                </ImageView>
-               <ComboBox fx:id="comboTimePeriod" layoutX="122.0" layoutY="72.0" prefHeight="37.0" prefWidth="274.0" promptText="Time Period" style="-fx-background-color: white;" />
+               <ComboBox fx:id="comboTimePeriod" layoutX="122.0" layoutY="72.0" prefHeight="37.0" prefWidth="274.0" promptText="Time Period" style="-fx-background-color: white; -fx-font-weight: bold;" />
                <ImageView fitHeight="48.0" fitWidth="40.0" layoutX="55.0" layoutY="71.0" pickOnBounds="true" preserveRatio="true">
                   <image>
                      <Image url="@../../../images/time.png" />

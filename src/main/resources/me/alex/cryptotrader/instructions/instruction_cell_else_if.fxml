@@ -21,8 +21,8 @@
         </image>
     </ImageView>
    <Line endY="79.0" layoutX="57.0" layoutY="12.0" startY="-2.0" />
-   <ComboBox fx:id="comboCondition" layoutX="147.0" layoutY="10.0" prefHeight="35.0" prefWidth="167.0" promptText="Condition" style="-fx-background-radius: 10px; -fx-background-color: white;" />
-   <ComboBox fx:id="comboAction" layoutX="324.0" layoutY="10.0" prefHeight="35.0" prefWidth="197.0" promptText="Action" style="-fx-background-radius: 10px; -fx-background-color: white;" />
+   <ComboBox fx:id="comboCondition" layoutX="147.0" layoutY="10.0" prefHeight="35.0" prefWidth="167.0" promptText="Condition" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
+   <ComboBox fx:id="comboAction" layoutX="324.0" layoutY="10.0" prefHeight="35.0" prefWidth="197.0" promptText="Action" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
    <Label alignment="CENTER" graphicTextGap="0.0" layoutX="67.0" layoutY="9.0" prefHeight="82.0" prefWidth="72.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" text="ELSE&#10;IF&#10;" textAlignment="CENTER" textFill="WHITE" wrapText="true">
       <font>
          <Font name="System Bold" size="28.0" />
@@ -34,7 +34,7 @@
          <Image url="@../../../../images/delete.png" />
       </image>
    </ImageView>
-   <ComboBox fx:id="comboTimePeriod" layoutX="370.0" layoutY="54.0" prefHeight="35.0" prefWidth="151.0" promptText="Time Period" style="-fx-background-radius: 10px; -fx-background-color: white;" />
+   <ComboBox fx:id="comboTimePeriod" layoutX="370.0" layoutY="54.0" prefHeight="35.0" prefWidth="151.0" promptText="Time Period" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
    <Label alignment="CENTER" layoutX="295.0" layoutY="54.0" prefHeight="35.0" prefWidth="64.0" text="OVER" textAlignment="CENTER">
       <font>
          <Font name="System Bold" size="24.0" />

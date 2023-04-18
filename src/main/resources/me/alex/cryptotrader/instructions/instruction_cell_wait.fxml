@@ -20,7 +20,7 @@
         </image>
     </ImageView>
    <Line endY="38.0" layoutX="57.0" layoutY="12.0" startY="-2.0" />
-   <ComboBox fx:id="comboTimePeriod" layoutX="206.0" layoutY="7.0" prefHeight="45.0" prefWidth="169.0" promptText="Time Period" style="-fx-background-radius: 10px; -fx-background-color: white;" />
+   <ComboBox fx:id="comboTimePeriod" layoutX="206.0" layoutY="7.0" prefHeight="45.0" prefWidth="169.0" promptText="Time Period" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
    <Label alignment="CENTER" layoutX="69.0" layoutY="7.0" prefHeight="45.0" prefWidth="128.0" style="-fx-background-color: blue; -fx-background-radius: 10px;" text="WAIT" textFill="WHITE">
       <font>
          <Font name="System Bold" size="30.0" />
