@@ -41,46 +41,46 @@ public class InstructionCellController implements Initializable {
 
         if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
 
+            // Setup condition combo box.
             comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
             comboCondition.setItems(FXCollections.observableArrayList(ConditionType.CONDITIONS));
             comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
 
+            // Setup action combo box.
             comboAction.valueProperty().bindBidirectional(instruction.actionProperty());
             comboAction.valueProperty().addListener((observable, oldValue, newValue) -> onActionSelected(newValue));
 
-            onConditionSelected(instruction.getCondition());
+            // Setup time period combo box.
+            comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
+            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.SHORT));
+            comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
 
-            // Disable action and value box.
-            comboAction.setDisable(comboCondition.getSelectionModel().isEmpty() || comboCondition.getSelectionModel().getSelectedItem().getSupportedInstructions().isEmpty());
+            // Setup value text box.
+            txtValue.textProperty().bindBidirectional(instruction.valueProperty());
+            txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
 
         } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
 
+            // Setup condition combo box.
             comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
             comboCondition.setItems(FXCollections.observableArrayList(ConditionType.ACTION_CONDITIONS));
             comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
 
+            // Setup value text box.
             txtValue.textProperty().bindBidirectional(instruction.valueProperty());
             txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
-
-            onConditionSelected(instruction.getCondition());
 
         } else if (instruction.getType() == Instruction.InstructionType.WAIT) {
 
+            // Setup time period combo box.
             comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
             comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.SHORT));
             comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
 
-        } else if (instruction.getType() == Instruction.InstructionType.VALUE) {
-
-            comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
-            comboTimePeriod.setItems(FXCollections.observableArrayList(TimePeriod.SHORT));
-            comboTimePeriod.valueProperty().addListener((observable, oldValue, newValue) -> onTimePeriodSelected(newValue));
-
-            txtValue.textProperty().bindBidirectional(instruction.valueProperty());
-            txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
-
-            invalidateInstruction();
         }
+
+        // Check what elements should and shouldn't be enabled on initialization.
+        checkWhatShouldBeDisabled();
 
         // Assign the background pane, so we can recolor it later.
         instruction.setController(this);
@@ -93,106 +93,74 @@ public class InstructionCellController implements Initializable {
         instruction.getStrategy().updateStrategy();
     }
 
-    public void invalidateInstruction() {
-        if (instruction.getType() != Instruction.InstructionType.VALUE) {
-            return;
-        }
-
-        int index = instruction.getStrategy().getInstructions().indexOf(instruction);
-        boolean comboEnabled = false;
-        boolean valueEnabled = false;
-
-        // Reset state.
-        comboTimePeriod.setDisable(false);
-        txtValue.setDisable(false);
-
-        if (index > 0) {
-            Instruction previous = instruction.getStrategy().getInstructions().get(index - 1);
-            ComboBox<TimePeriod> timePeriod = previous.getController().comboTimePeriod;
-
-            // Disable the elements if the previous instruction isn't of IF type.
-            if (previous.getType() == Instruction.InstructionType.IF || previous.getType() == Instruction.InstructionType.ELSE_IF) {
-                ConditionType condition = previous.getCondition();
-                ActionType action = previous.getAction();
-
-                if (condition != null && (action != null || condition.getSupportedInstructions().isEmpty()) && (timePeriod == null || !timePeriod.isDisabled())) {
-
-                    if (action != null && action.canInputValue()) {
-                        valueEnabled = true;
-                    }
-
-                    comboEnabled = (action == null || action.canHaveTimePeriod()) && condition.canHaveTimePeriod();
-                }
-            }
-        }
-
-        // If we could not find the previous instruction, disable the elements.
-        comboTimePeriod.setDisable(!comboEnabled);
-        txtValue.setDisable(!valueEnabled);
-    }
-
     private void onConditionSelected(ConditionType type) {
         instruction.setCondition(type);
 
-        if (type != null) {
-
-            if (comboAction != null) {
-                // Add supported instruction types to the action combo box, and if it is none, then disable the element.
-                List<ActionType> supportedTypes = type.getSupportedInstructions();
-                comboAction.setItems(FXCollections.observableArrayList(supportedTypes));
-                comboAction.setDisable(supportedTypes.isEmpty());
-            }
-
-            if (txtValue != null) {
-                txtValue.setDisable(false);
-
-                if (type == ConditionType.BUY_AS_MUCH_AS_POSSIBLE || type == ConditionType.SELL_ALL) {
-                    txtValue.setDisable(true);
-                    instruction.setValue("0");
-                }
-            }
-
+        if (type != null && comboAction != null) {
+            // Add supported instruction types to the action combo box.
+            List<ActionType> supportedTypes = type.getSupportedInstructions();
+            comboAction.setItems(FXCollections.observableArrayList(supportedTypes));
         }
 
-        notifyInstructionUpdated();
+        checkWhatShouldBeDisabled();
     }
 
     private void onActionSelected(ActionType type) {
         instruction.setAction(type);
-        notifyInstructionUpdated();
+        checkWhatShouldBeDisabled();
     }
 
     private void onValueChange(String newValue) {
         instruction.setValue(newValue);
-
-        int index = instruction.getStrategy().getInstructions().indexOf(instruction);
-
-        notifyInstructionUpdated();
-
-        if (index > 0) {
-            Instruction previous = instruction.getStrategy().getInstructions().get(index - 1);
-
-            if (newValue.contains("%")) {
-                ActionType type = previous.getAction();
-                comboTimePeriod.setDisable(type == null || !type.canHavePercentage());
-
-                if (comboTimePeriod.isDisabled()) {
-                    instruction.setTimePeriod(null);
-                }
-            }
-        }
+        checkWhatShouldBeDisabled();
     }
 
     private void onTimePeriodSelected(TimePeriod type) {
         instruction.setTimePeriod(type);
-        notifyInstructionUpdated();
+        checkWhatShouldBeDisabled();
     }
 
-    private void notifyInstructionUpdated() {
-        instruction.getStrategy().getInstructions().forEach(instruction -> {
-            InstructionCellController controller = instruction.getController();
-            if (controller != null) controller.invalidateInstruction();
-        });
+    private void checkWhatShouldBeDisabled() {
+        ConditionType condition = instruction.getCondition();
+        ActionType action = instruction.getAction();
+
+
+        // Reset states before disabling.
+        if (comboAction != null) comboAction.setDisable(false);
+        if (comboTimePeriod != null) comboTimePeriod.setDisable(false);
+        if (txtValue != null) txtValue.setDisable(false);
+
+        // If no condition is selected, disable all.
+        if (comboCondition != null && comboCondition.getSelectionModel().getSelectedItem() == null) {
+            if (comboAction != null) comboAction.setDisable(true);
+            if (comboTimePeriod != null) comboTimePeriod.setDisable(true);
+            txtValue.setDisable(true);
+            return;
+        }
+
+        // If no action is selected, disable the text value and time period combo box.
+        if (comboAction != null && comboAction.getSelectionModel().getSelectedItem() == null) {
+            txtValue.setDisable(true);
+            comboTimePeriod.setDisable(true);
+        }
+
+        // If the action or condition does not allow the text box or time period to be edited.
+        if (action != null && !action.canInputValue()) {
+            if (txtValue != null) txtValue.setDisable(true);
+        }
+
+        // If the action or condition does not support the time period combo box.
+        if ((action != null && !action.canHaveTimePeriod()) || (condition != null && !condition.canHaveTimePeriod())) {
+            if (comboTimePeriod != null) comboTimePeriod.setDisable(true);
+        }
+
+        // If time periods are support but the value doesn't have a percentage, then disable the time period.
+        if (comboTimePeriod != null && !comboTimePeriod.isDisabled() && txtValue != null && action != null && action.canInputValue()
+                && (txtValue.textProperty().get() == null || !txtValue.textProperty().get().contains("%"))) {
+            comboTimePeriod.setDisable(true);
+        }
+
+
     }
 
     public AnchorPane getBackground() {

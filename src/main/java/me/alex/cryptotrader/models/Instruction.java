@@ -180,9 +180,9 @@ public class Instruction {
         ACTION(ActionInstruction::new),
         WAIT(WaitInstruction::new),
         STOP(StopInstruction::new),
+        DIVIDER(null),
         ELSE(null),
         END_IF(null),
-        VALUE(null),
         ;
 
         private final ManagerConstructor constructor;

@@ -86,7 +86,7 @@
                      <Font size="20.0" />
                   </font>
                </Label>
-               <JFXButton buttonType="RAISED" layoutX="146.0" layoutY="181.0" onAction="#resetTest" prefHeight="63.0" prefWidth="144.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;" text="Reset" textFill="WHITE">
+               <JFXButton buttonType="RAISED" layoutX="146.0" layoutY="181.0" onAction="#resetTest" prefHeight="63.0" prefWidth="144.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="Reset" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
@@ -110,7 +110,7 @@
                      <Image url="@../../../images/time.png" />
                   </image>
                </ImageView>
-               <JFXButton buttonType="RAISED" layoutX="152.0" layoutY="178.0" onAction="#startTest" prefHeight="67.0" prefWidth="131.0" style="-fx-background-color: #6166aa;" text="Start Test" textFill="WHITE">
+               <JFXButton buttonType="RAISED" layoutX="152.0" layoutY="178.0" onAction="#startTest" prefHeight="67.0" prefWidth="131.0" style="-fx-background-color: #6166aa;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="Start Test" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>

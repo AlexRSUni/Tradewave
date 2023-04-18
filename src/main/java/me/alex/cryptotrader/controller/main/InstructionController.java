@@ -43,6 +43,8 @@ public class InstructionController extends BaseController {
     private JFXButton btnStop;
     @FXML
     private JFXButton btnEndIf;
+    @FXML
+    private JFXButton btnDivider;
 
     @FXML
     private Label lblLive;
@@ -86,9 +88,9 @@ public class InstructionController extends BaseController {
         btnEndIf.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.END_IF));
 
         btnAction.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.ACTION));
-        btnValue.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.VALUE));
         btnWait.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.WAIT));
         btnStop.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.STOP));
+        btnDivider.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.DIVIDER));
 
         // Update data labels.
         lblLive.setText("Live " + tokenPair[0] + " Price:");
@@ -205,9 +207,6 @@ public class InstructionController extends BaseController {
                         Instruction instruction = instructionList.getItems().get(i);
                         instruction.setPriority(i + 1);
                     }
-
-                    // Notify that the priorities have changed.
-                    instructionList.getItems().forEach(instruction -> instruction.getController().invalidateInstruction());
                 }
             });
 

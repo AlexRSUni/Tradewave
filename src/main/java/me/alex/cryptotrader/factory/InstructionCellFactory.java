@@ -1,6 +1,7 @@
 package me.alex.cryptotrader.factory;
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.ListCell;
 import me.alex.cryptotrader.CryptoApplication;
 import me.alex.cryptotrader.controller.element.InstructionCellController;
@@ -21,6 +22,12 @@ public class InstructionCellFactory extends ListCell<Instruction> {
             loader.setController(controller);
 
             setText(null);
+
+            if (instruction.getType() == Instruction.InstructionType.DIVIDER) {
+                setPadding(new Insets(10, 5, 10, 5));
+            } else {
+                setPadding(new Insets(5, 5, 5, 5));
+            }
 
             try {
                 setGraphic(loader.load());

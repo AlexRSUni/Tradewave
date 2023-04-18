@@ -14,12 +14,8 @@ public class ValidationUtils {
                     return "IF/ELSE IF on line " + (i + 1) + " is not filled out!";
                 }
 
-                if (i + 1 < strategy.getInstructions().size()) {
-                    Instruction next = strategy.getInstructions().get(i + 1);
-
-                    if (next.getType() != Instruction.InstructionType.VALUE) {
-                        return "IF/ELSE IF on line " + (i + 1) + " is missing VALUE on following line!";
-                    }
+                if (!instruction.getController().comboTimePeriod.isDisabled() && instruction.getTimePeriod() == null) {
+                    return "VALUE on line " + (i + 1) + " is not filled out!";
                 }
 
             } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
@@ -32,19 +28,6 @@ public class ValidationUtils {
                     return "WAIT on line " + (i + 1) + " is not filled out!";
                 }
 
-            } else if (instruction.getType() == Instruction.InstructionType.VALUE) {
-                if (i == 0) {
-                    return "VALUE on line " + (i + 1) + " must be below an IF/ELSE IF condition!";
-                }
-
-                if (!instruction.getController().comboTimePeriod.isDisabled() && instruction.getTimePeriod() == null) {
-                    return "VALUE on line " + (i + 1) + " is not filled out!";
-                }
-
-                Instruction above = strategy.getInstructions().get(i - 1);
-                if (above.getType() != Instruction.InstructionType.IF && above.getType() != Instruction.InstructionType.ELSE_IF) {
-                    return "VALUE on line " + (i + 1) + " must be below an IF/ELSE IF condition!";
-                }
             }
         }
 
