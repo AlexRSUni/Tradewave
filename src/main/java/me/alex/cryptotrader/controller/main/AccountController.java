@@ -97,6 +97,7 @@ public class AccountController extends BaseController {
     public void resetRememberMeState() {
         String currentUsername = txtLoggedIn.getText();
         DatabaseUtils.savePersistentUser(currentUsername);
+        ViewManager.get().showScene("login");
     }
 
     @FXML
