@@ -4,9 +4,12 @@ import com.binance.api.client.BinanceApiClientFactory;
 import com.binance.api.client.BinanceApiRestClient;
 import com.binance.api.client.domain.account.Account;
 import com.binance.api.client.domain.account.AssetBalance;
+import com.binance.api.client.exception.BinanceApiException;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import me.alex.cryptotrader.CryptoApplication;
+import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Fund;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.util.DatabaseUtils;
@@ -20,6 +23,8 @@ import java.util.concurrent.CompletableFuture;
 import static me.alex.cryptotrader.util.DatabaseUtils.DB_URL;
 
 public class UserProfile {
+
+    public static final long BINANCE_API_WAIT = 30_000L;
 
     private final ObservableList<Strategy> strategies = FXCollections.observableArrayList();
     private final ObservableList<Fund> funds = FXCollections.observableArrayList();
@@ -41,6 +46,9 @@ public class UserProfile {
                 CryptoApplication.get().logoutCurrentUser(false, "Failed to login. Throttled by Binance.");
                 return;
             }
+
+            // If log was successful, display the interface.
+            Platform.runLater(() -> ViewManager.get().showScene("interface"));
 
             loadFunds();
             loadStrategies();
@@ -96,9 +104,9 @@ public class UserProfile {
         BinanceApiRestClient client = factory.newRestClient();
 
         try {
-            this.binanceAccount = client.getAccount(2_000L, System.currentTimeMillis());
+            this.binanceAccount = client.getAccount(BINANCE_API_WAIT, System.currentTimeMillis());
             future.complete(this.binanceAccount != null);
-        } catch (Exception ex) {
+        } catch (BinanceApiException ex) {
             future.completeExceptionally(ex);
         }
     }

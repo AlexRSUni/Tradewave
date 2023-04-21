@@ -7,28 +7,20 @@ public abstract class CryptoInstruction {
 
     protected final Instruction instruction;
 
+    private String failReason;
+
     public CryptoInstruction(Instruction instruction) {
         this.instruction = instruction;
     }
 
     public abstract boolean checkCondition(long timestamp, double price, TradingData data);
 
-    protected Instruction getNext() {
-        return getAdjacent(1);
+    public void setFailReason(String failReason) {
+        this.failReason = failReason;
     }
 
-    protected Instruction getPrevious() {
-        return getAdjacent(-1);
-    }
-
-    private Instruction getAdjacent(int i) {
-        int index = instruction.getStrategy().getInstructions().indexOf(instruction);
-
-        try {
-            return instruction.getStrategy().getInstructions().get(index + i);
-        } catch (Exception ex) {
-            return null;
-        }
+    public String getFailReason() {
+        return failReason;
     }
 
     public Instruction getInstruction() {

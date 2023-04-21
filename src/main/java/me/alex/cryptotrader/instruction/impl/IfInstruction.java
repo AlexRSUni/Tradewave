@@ -24,20 +24,18 @@ public class IfInstruction extends CryptoInstruction {
         ConditionType condition = instruction.getCondition();
         ActionType action = instruction.getAction();
 
-        Instruction value = getNext();
-        TimePeriod period = value.getTimePeriod();
+        String value = instruction.getValue();
+        TimePeriod period = instruction.getTimePeriod();
 
         switch (condition) {
 
             case PRICE -> {
-                String target = value.getValue();
-                return handlePriceComparison(action, period, price, target, data);
+                return handlePriceComparison(action, period, price, value, data);
             }
 
             case PRICE_SINCE_LAST_TRANSACTION -> {
-                String target = value.getValue();
                 double priceAtLastTransaction = data.getPriceAtLastTransaction();
-                return priceAtLastTransaction != -1 && handlePriceComparison(action, period, priceAtLastTransaction, target, data);
+                return priceAtLastTransaction != -1 && handlePriceComparison(action, period, priceAtLastTransaction, value, data);
             }
 
             case MARKET_CONDITION -> {
@@ -59,14 +57,12 @@ public class IfInstruction extends CryptoInstruction {
             }
 
             case OWNED_TOKEN_AMOUNT -> {
-                String target = value.getValue();
-                double compareAmount = NumberUtils.toDouble(target, -1);
+                double compareAmount = NumberUtils.toDouble(value, -1);
                 return compareAmount != -1 && handleWalletComparison(action, compareAmount, data.getTokenAmount());
             }
 
             case OWNED_CURRENCY_AMOUNT -> {
-                String target = value.getValue();
-                double compareAmount = NumberUtils.toDouble(target, -1);
+                double compareAmount = NumberUtils.toDouble(value, -1);
                 return compareAmount != -1 && handleWalletComparison(action, compareAmount, data.getCurrencyAmount());
             }
 

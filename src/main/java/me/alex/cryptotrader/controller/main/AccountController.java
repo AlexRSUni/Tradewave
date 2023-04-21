@@ -9,6 +9,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import me.alex.cryptotrader.manager.ViewManager;
+import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.DatabaseUtils;
 
 public class AccountController extends BaseController {
@@ -73,7 +74,7 @@ public class AccountController extends BaseController {
         BinanceApiRestClient client = factory.newRestClient();
 
         try {
-            client.getAccount(2_000L, System.currentTimeMillis());
+            client.getAccount(UserProfile.BINANCE_API_WAIT, System.currentTimeMillis());
         } catch (Exception ex) {
             errorMessage = "Invalid Binance API/Secret Key!";
         }
@@ -122,7 +123,7 @@ public class AccountController extends BaseController {
 
     private void processLogin(String username, String password, boolean stayLoggedIn) {
         if (DatabaseUtils.validateLogin(username, password, stayLoggedIn)) {
-            ViewManager.get().showScene("interface");
+//            ViewManager.get().showScene("interface");
         } else {
             lblMessageRem.setText("Invalid username or password.");
         }

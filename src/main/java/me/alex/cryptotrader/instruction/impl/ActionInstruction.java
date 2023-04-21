@@ -33,6 +33,9 @@ public class ActionInstruction extends CryptoInstruction {
                         return true;
                     }
                 }
+
+                setFailReason("Did not have enough funds for purchase!");
+                return false;
             }
 
             case SELL -> {
@@ -49,6 +52,9 @@ public class ActionInstruction extends CryptoInstruction {
                         return true;
                     }
                 }
+
+                setFailReason("Did not have enough tokens to sell!");
+                return false;
             }
 
             case BUY_AS_MUCH_AS_POSSIBLE -> {
@@ -59,8 +65,9 @@ public class ActionInstruction extends CryptoInstruction {
                     data.incCurrencyAmount(-data.getCurrencyAmount());
 
                     data.addUserTransaction(timestamp, amountToBuy, price);
-                    return true;
                 }
+
+                return true;
             }
 
             case SELL_ALL -> {
@@ -71,12 +78,14 @@ public class ActionInstruction extends CryptoInstruction {
                     data.incCurrencyAmount(amountOwned * price);
 
                     data.addUserTransaction(timestamp, -amountOwned, price);
-                    return true;
                 }
+
+                return true;
             }
 
         }
 
+        setFailReason("Invalid Action in instruction!");
         return false;
     }
 

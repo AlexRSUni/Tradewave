@@ -51,7 +51,7 @@ public class Strategy {
 
                     // Check condition. If condition is failed, terminate the trading.
                     if (!impl.checkCondition(timestamp, price, data)) {
-                        haltCondition = "Transaction Failed";
+                        haltCondition = impl.getFailReason();
                         break;
                     }
 
