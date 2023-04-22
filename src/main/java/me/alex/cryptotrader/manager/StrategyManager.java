@@ -1,16 +1,17 @@
 package me.alex.cryptotrader.manager;
 
+import me.alex.cryptotrader.controller.main.InstructionController;
 import me.alex.cryptotrader.controller.main.StrategyController;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.util.DatabaseUtils;
 import me.alex.cryptotrader.util.binance.AggTradesListener;
 
-public class ConfigurationManager {
+public class StrategyManager {
 
     private Strategy currentStrategy;
     private AggTradesListener tradesListener;
 
-    public ConfigurationManager() {
+    public StrategyManager() {
         // Empty
     }
 
@@ -30,8 +31,9 @@ public class ConfigurationManager {
         if (strategy == null) {
             ViewManager.get().getCurrentMenu().set("Configure");
         } else {
-            ViewManager.get().getCurrentMenu().set("Edit Strategy");
             tradesListener = TradingManager.get().createListener(strategy.tokenProperty().get(), null);
+            InstructionController.get().setup();
+            ViewManager.get().getCurrentMenu().set("Edit Strategy");
         }
     }
 
@@ -47,7 +49,7 @@ public class ConfigurationManager {
         return currentStrategy;
     }
 
-    public static ConfigurationManager get() {
+    public static StrategyManager get() {
         return StrategyController.get().getManager();
     }
 

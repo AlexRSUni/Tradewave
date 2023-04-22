@@ -5,10 +5,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import me.alex.cryptotrader.controller.main.DashboardController;
 import me.alex.cryptotrader.controller.main.StrategyController;
+import me.alex.cryptotrader.manager.TradingManager;
 import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.DatabaseUtils;
+import me.alex.cryptotrader.util.Utilities;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -38,15 +40,28 @@ public class StrategyCellController implements Initializable {
 
     @FXML
     public void editStrategy() {
-        StrategyController controller = ViewManager.get().getController(ViewManager.get().getStrategyView());
-        controller.getManager().setCurrentStrategy(strategy, false);
+        if (validateCurrentlyUsedStrategy()) {
+            StrategyController controller = ViewManager.get().getController(ViewManager.get().getStrategyView());
+            controller.getManager().setCurrentStrategy(strategy, false);
+        }
     }
 
     @FXML
     public void deleteStrategy() {
-        UserProfile.get().getStrategies().remove(strategy);
-        DatabaseUtils.deleteStrategy(strategy);
-        DashboardController.get().updateStrategyStatus();
+        if (validateCurrentlyUsedStrategy()) {
+            UserProfile.get().getStrategies().remove(strategy);
+            DatabaseUtils.deleteStrategy(strategy);
+            DashboardController.get().updateStrategyStatus();
+        }
+    }
+
+    private boolean validateCurrentlyUsedStrategy() {
+        Strategy tradingStrategy = TradingManager.get().getStrategy();
+        if (tradingStrategy != null && tradingStrategy == strategy && TradingManager.get().isTrading()) {
+            Utilities.sendErrorAlert("Cannot modify strategy!", "This strategy is currently in use! Stop trading first!");
+            return false;
+        }
+        return true;
     }
 
     private void updateColor() {

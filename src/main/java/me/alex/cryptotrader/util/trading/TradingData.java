@@ -1,11 +1,10 @@
 package me.alex.cryptotrader.util.trading;
 
-import javafx.collections.ObservableList;
+import com.binance.api.client.domain.account.Account;
 import me.alex.cryptotrader.instruction.ActionType;
 import me.alex.cryptotrader.instruction.TimePeriod;
 import me.alex.cryptotrader.models.Strategy;
-import me.alex.cryptotrader.models.Transaction;
-import me.alex.cryptotrader.util.Utilities;
+import me.alex.cryptotrader.profile.UserProfile;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -17,6 +16,7 @@ public class TradingData {
 
     private final RollingAverage rollingAverage = new RollingAverage(4);
     private final PeriodChange periodChange = new PeriodChange(500);
+    private final Strategy strategy;
 
     private final Consumer<double[]> transactionConsumer;
     private final double startingToken, startingCurrency;
@@ -26,6 +26,8 @@ public class TradingData {
     private long lastMarketTransaction = -1;
     private long lastTransaction = -1;
     private double priceAtLastTransaction = -1;
+    private double initialPrice = -1;
+    private boolean lastTransactionWasBuy;
 
     // Tracking values.
     private int tradeCounter;
@@ -34,14 +36,16 @@ public class TradingData {
     // Token amounts.
     private double tokenAmount;
     private double currencyAmount;
+    private double lastPrice;
 
     // Other variables.
-    private boolean shouldStop;
+    private boolean shouldStop, isWaiting;
     private long waitTimestamp;
     private long waitDuration;
 
-    public TradingData(boolean isTest, double startingToken, double startingCurrency, Consumer<double[]> transactionConsumer) {
+    public TradingData(boolean isTest, Strategy strategy, double startingToken, double startingCurrency, Consumer<double[]> transactionConsumer) {
         this.isTest = isTest;
+        this.strategy = strategy;
         this.startingToken = this.tokenAmount = startingToken;
         this.startingCurrency = this.currencyAmount = startingCurrency;
         this.transactionConsumer = transactionConsumer;
@@ -49,6 +53,7 @@ public class TradingData {
 
     public void addMarketTransaction(long timestamp, double price) {
         this.lastMarketTransaction = timestamp;
+        this.lastPrice = price;
         this.previousPrices.put(timestamp, price);
         this.rollingAverage.add(price);
 
@@ -67,9 +72,30 @@ public class TradingData {
     }
 
     public void addUserTransaction(long timestamp, double amount, double price) {
+        if (initialPrice == -1) {
+            initialPrice = price;
+        }
+
         transactionConsumer.accept(new double[]{tradeCounter, timestamp, amount, price});
         lastTransaction = timestamp;
         priceAtLastTransaction = price;
+        lastTransactionWasBuy = amount > 0;
+
+        if (!isTest) {
+            isWaiting = true;
+
+            // Reload our balances from the API to ensure we have the updated balances locally. We will set the program
+            // to the wait state while we do this to avoid any further transactions being processed while we are waiting
+            // for a response.
+            UserProfile profile = UserProfile.get();
+            Account account = profile.getClient().getAccount(UserProfile.BINANCE_API_WAIT, System.currentTimeMillis());
+
+            String[] tokenPair = strategy.getTokenPairNames();
+            profile.updateFund(tokenPair[0], Double.parseDouble(account.getAssetBalance(tokenPair[0]).getFree()));
+            profile.updateFund(tokenPair[1], Double.parseDouble(account.getAssetBalance(tokenPair[1]).getFree()));
+
+            isWaiting = false;
+        }
     }
 
     public double getPriceAtPeriodBefore(TimePeriod period) {
@@ -104,8 +130,40 @@ public class TradingData {
         this.waitDuration = duration.getMilliseconds();
     }
 
-    public boolean isHalted() {
-        return waitTimestamp + waitDuration > lastMarketTransaction;
+    public double getTokenAmount() {
+        if (isTest) {
+            return tokenAmount;
+        } else {
+            return UserProfile.get().getOwnedToken(strategy.getTokenPairNames()[0]);
+        }
+    }
+
+    public void incTokenAmount(double amount) {
+        this.tokenAmount += amount;
+    }
+
+    public double getCurrencyAmount() {
+        if (isTest) {
+            return currencyAmount;
+        } else {
+            return UserProfile.get().getOwnedToken(strategy.getTokenPairNames()[1]);
+        }
+    }
+
+    public void incCurrencyAmount(double amount) {
+        this.currencyAmount += amount;
+    }
+
+    public boolean isWaiting() {
+        return isWaiting || waitTimestamp + waitDuration > lastMarketTransaction;
+    }
+
+    public double getInitialPrice() {
+        return initialPrice;
+    }
+
+    public double getLastPrice() {
+        return lastPrice;
     }
 
     public void setShouldStop(boolean shouldStop) {
@@ -120,24 +178,12 @@ public class TradingData {
         return periodChange.getState();
     }
 
-    public double getTokenAmount() {
-        return tokenAmount;
-    }
-
-    public void incTokenAmount(double amount) {
-        this.tokenAmount += amount;
-    }
-
-    public double getCurrencyAmount() {
-        return currencyAmount;
-    }
-
-    public void incCurrencyAmount(double amount) {
-        this.currencyAmount += amount;
-    }
-
     public boolean isTest() {
         return isTest;
+    }
+
+    public boolean wasLastTransactionBuy() {
+        return lastTransactionWasBuy;
     }
 
     public double getStartingToken() {

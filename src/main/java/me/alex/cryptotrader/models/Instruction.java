@@ -177,6 +177,7 @@ public class Instruction {
 
         IF(IfInstruction::new),
         ELSE_IF(IfInstruction::new),
+        OR(IfInstruction::new),
         ACTION(ActionInstruction::new),
         WAIT(WaitInstruction::new),
         STOP(StopInstruction::new),

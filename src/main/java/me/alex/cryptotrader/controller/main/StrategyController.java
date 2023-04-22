@@ -6,17 +6,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import me.alex.cryptotrader.CryptoApplication;
 import me.alex.cryptotrader.factory.StrategyCellFactory;
-import me.alex.cryptotrader.manager.ConfigurationManager;
+import me.alex.cryptotrader.manager.StrategyManager;
 import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.DatabaseUtils;
 import me.alex.cryptotrader.util.FilteredComboBoxSelectionModel;
 import me.alex.cryptotrader.util.Utilities;
+import me.alex.cryptotrader.util.binance.BinanceUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class StrategyController extends BaseController {
@@ -45,12 +45,12 @@ public class StrategyController extends BaseController {
 
     // Variables
 
-    private ConfigurationManager manager;
+    private StrategyManager manager;
 
     @FXML
     public void initialize() {
         // Init manager.
-        this.manager = new ConfigurationManager();
+        this.manager = new StrategyManager();
 
         // Setup instruction list.
         FilteredList<Strategy> filteredStrategies = new FilteredList<>(UserProfile.get().getStrategies(), s -> true);
@@ -167,13 +167,13 @@ public class StrategyController extends BaseController {
                 return;
             }
 
-            lblStatus.setText("Trading " + Utilities.getSymbolName(first) + " in " + Utilities.getSymbolName(second));
+            lblStatus.setText("Trading " + BinanceUtils.getSymbolName(first) + " in " + BinanceUtils.getSymbolName(second));
         } else {
             lblStatus.setText("");
         }
     }
 
-    public ConfigurationManager getManager() {
+    public StrategyManager getManager() {
         return manager;
     }
 

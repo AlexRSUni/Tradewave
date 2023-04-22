@@ -2,6 +2,7 @@ package me.alex.cryptotrader.instruction;
 
 public enum TimePeriod {
 
+    _10_SECONDS("10s", 10_000),
     _5_MINUTES("5m", 300_000),
     _10_MINUTES("10m", 600_000),
     _15_MINUTES("15m", 900_000),
@@ -15,7 +16,7 @@ public enum TimePeriod {
     ;
 
     public static final TimePeriod[] SHORT = new TimePeriod[]{
-            _5_MINUTES, _10_MINUTES, _15_MINUTES, _30_MINUTES, _1_HOUR, _3_HOURS, _6_HOURS, _12_HOURS, _24_HOURS
+            _10_SECONDS, _5_MINUTES, _10_MINUTES, _15_MINUTES, _30_MINUTES, _1_HOUR, _3_HOURS, _6_HOURS, _12_HOURS, _24_HOURS
     };
 
     public static final TimePeriod[] TESTING = new TimePeriod[]{

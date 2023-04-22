@@ -74,8 +74,8 @@
                      <Font size="20.0" />
                   </font>
                </Label>
-               <Line endX="186.0" layoutX="217.0" layoutY="91.0" startX="-179.0" stroke="WHITE" />
-               <Line endX="186.0" layoutX="214.0" layoutY="162.0" startX="-179.0" stroke="WHITE" />
+               <Line endX="186.0" layoutX="217.0" layoutY="88.0" startX="-179.0" stroke="WHITE" />
+               <Line endX="186.0" layoutX="214.0" layoutY="194.0" startX="-179.0" stroke="WHITE" />
                <Label fx:id="lblCurrency" alignment="CENTER" layoutX="38.0" layoutY="125.0" prefHeight="30.0" prefWidth="185.0" text="USDT Balance:" textFill="WHITE" underline="true">
                   <font>
                      <Font name="System Bold" size="20.0" />
@@ -86,11 +86,21 @@
                      <Font size="20.0" />
                   </font>
                </Label>
-               <JFXButton buttonType="RAISED" layoutX="146.0" layoutY="181.0" onAction="#resetTest" prefHeight="63.0" prefWidth="144.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="Reset" textFill="WHITE">
+               <JFXButton buttonType="RAISED" layoutX="146.0" layoutY="208.0" onAction="#resetTest" prefHeight="36.0" prefWidth="144.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="Reset" textFill="WHITE">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font>
                </JFXButton>
+               <Label alignment="CENTER" layoutX="37.0" layoutY="155.0" prefHeight="30.0" prefWidth="185.0" text="Total Value:" textFill="WHITE" underline="true">
+                  <font>
+                     <Font name="System Bold" size="20.0" />
+                  </font>
+               </Label>
+               <Label fx:id="lblTotal" alignment="CENTER" layoutX="201.0" layoutY="155.0" prefHeight="30.0" prefWidth="219.0" text="1000.53 USDT (+10.1%)" textFill="WHITE">
+                  <font>
+                     <Font size="20.0" />
+                  </font>
+               </Label>
             </children>
          </AnchorPane>
          <AnchorPane fx:id="testingPanel" layoutX="421.0" layoutY="497.0" prefHeight="258.0" prefWidth="435.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;">
@@ -128,9 +138,9 @@
                </Label>
             </children>
          </AnchorPane>
-         <Label layoutX="392.0" layoutY="12.0" text="Test Strategies">
+         <Label layoutX="371.0" layoutY="4.0" text="Test Strategies">
             <font>
-               <Font name="System Bold" size="24.0" />
+               <Font name="System Bold" size="30.0" />
             </font>
          </Label>
         </AnchorPane>

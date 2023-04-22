@@ -24,6 +24,10 @@ public enum ActionType {
     IS_NOT_EQUAL_TO(false, true, false),
     IS_LESS_THAN(false, true, false),
     IS_MORE_THAN(false, true, false),
+
+    NONE_YET(false, false, false),
+    BUY(false, false, false),
+    SELL(false, false, false),
     ;
 
     public static final ActionType[] PRICE_CONDITIONS = new ActionType[]{
@@ -36,6 +40,10 @@ public enum ActionType {
 
     public static final ActionType[] WALLET_CONDITIONS = new ActionType[]{
             IS_EQUAL_TO, IS_NOT_EQUAL_TO, IS_LESS_THAN, IS_MORE_THAN
+    };
+
+    public static final ActionType[] LAST_TRANSACTION = new ActionType[]{
+            BUY, SELL, NONE_YET
     };
 
     private final boolean canHavePercentage;

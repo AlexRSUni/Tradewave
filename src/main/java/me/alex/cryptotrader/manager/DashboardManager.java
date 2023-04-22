@@ -12,6 +12,7 @@ import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.binance.AggTradesListener;
+import me.alex.cryptotrader.util.binance.BinanceUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +71,7 @@ public class DashboardManager {
         createTradeListener(token, unit);
 
         // Fetch historic data.
-        List<double[]> historicData = Utilities.fetchHistoryTradingData(token, "5m", 24 * 60 * 60);
+        List<double[]> historicData = BinanceUtils.fetchHistoryTradingData(token, "5m", 24 * 60 * 60);
 
         // If no data is found, just reset the token.
         if (historicData.isEmpty()) {
@@ -156,7 +157,9 @@ public class DashboardManager {
                 Utilities.FORMAT_TWO_DECIMAL_PLACE.format(price) + " " + unit,
                 null,
                 time,
-                price > lastPrice ? "green" : price == lastPrice ? "gray" : "red"
+                price > lastPrice ? "green" : price == lastPrice ? "gray" : "red",
+                price,
+                -1
         );
 
         // Cache price locally.

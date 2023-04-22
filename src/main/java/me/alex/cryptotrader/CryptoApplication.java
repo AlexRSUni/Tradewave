@@ -12,6 +12,7 @@ import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.DatabaseUtils;
 import me.alex.cryptotrader.util.Utilities;
+import me.alex.cryptotrader.util.binance.BinanceUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +84,7 @@ public class CryptoApplication extends Application {
         Task<List<String>> fetchTradingPairsTask = new Task<>() {
             @Override
             protected List<String> call() {
-                return Utilities.fetchBinanceTradingPairs();
+                return BinanceUtils.fetchBinanceTradingPairs();
             }
         };
 
@@ -99,7 +100,7 @@ public class CryptoApplication extends Application {
 
     // Use a task to load our token to name data from the API otherwise it will freeze the program on startup.
     private void loadSymbolToName() {
-        Utilities.runTask(Utilities::fetchTokenToNameData);
+        Utilities.runTask(BinanceUtils::fetchTokenToNameData);
     }
 
     public UserProfile getProfile() {

@@ -2,25 +2,41 @@ package me.alex.cryptotrader.util;
 
 import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
+import me.alex.cryptotrader.util.binance.BinanceUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 public class ValidationUtils {
 
-    public static String validateInstructionCompleting(Strategy strategy) {
+    public static String validateInstructionCompleting(Strategy strategy, double price) {
         for (int i = 0; i < strategy.getInstructions().size(); i++) {
             Instruction instruction = strategy.getInstructions().get(i);
+            Instruction previous = i == 0 ? null : strategy.getInstructions().get(i - 1);
 
-            if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
+            if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.OR) {
                 if (instruction.getCondition() == null || (instruction.getAction() == null && !instruction.getCondition().getSupportedInstructions().isEmpty())) {
-                    return "IF/ELSE IF on line " + (i + 1) + " is not filled out!";
+                    return instruction.getType().name() + " on line " + (i + 1) + " is not filled out!";
                 }
 
                 if (!instruction.getController().comboTimePeriod.isDisabled() && instruction.getTimePeriod() == null) {
-                    return "VALUE on line " + (i + 1) + " is not filled out!";
+                    return instruction.getType().name() + " on line " + (i + 1) + " is not filled out!";
+                }
+
+                if (instruction.getType() == Instruction.InstructionType.OR && (previous == null || (previous.getType() != Instruction.InstructionType.IF && previous.getType() != Instruction.InstructionType.ELSE_IF))) {
+                    return "OR on line " + (i + 1) + " most be following an IF/ELSE IF!";
                 }
 
             } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
-                if (instruction.getCondition() == null || instruction.getValue().isEmpty()) {
+                if (instruction.getCondition() == null || (!instruction.getCondition().getSupportedInstructions().isEmpty() && (instruction.getValue() == null || instruction.getValue().isEmpty()))) {
                     return "ACTION on line " + (i + 1) + " is not filled out!";
+                }
+
+                if (instruction.getValue() != null && !NumberUtils.isCreatable(instruction.getValue())) {
+                    return "ACTION on line " + (i + 1) + " has an invalid value!";
+                }
+
+                double min = BinanceUtils.fetchMinNotional(strategy.tokenProperty().get());
+                if (min != -1 && min >= NumberUtils.toDouble(instruction.getValue(), -1) * price) {
+                    return "ACTION on line " + (i + 1) + " must have trade value of at least " + min + " " + strategy.getTokenPairNames()[1] + "!";
                 }
 
             } else if (instruction.getType() == Instruction.InstructionType.WAIT) {

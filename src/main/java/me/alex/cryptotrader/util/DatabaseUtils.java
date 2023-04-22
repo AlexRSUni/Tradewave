@@ -32,7 +32,7 @@ public class DatabaseUtils {
                 strategy.updateStrategy();
                 strategies.add(strategy);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -55,7 +55,7 @@ public class DatabaseUtils {
                 Instruction instruction = new Instruction(result.getInt("id"), result.getInt("priority"), Instruction.InstructionType.valueOf(result.getString("type")), result.getString("data"), strategy);
                 instructions.add(instruction);
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

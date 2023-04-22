@@ -4,14 +4,17 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import me.alex.cryptotrader.instruction.ActionType;
 import me.alex.cryptotrader.instruction.ConditionType;
 import me.alex.cryptotrader.instruction.TimePeriod;
-import me.alex.cryptotrader.manager.ConfigurationManager;
+import me.alex.cryptotrader.manager.StrategyManager;
 import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.util.DatabaseUtils;
+import me.alex.cryptotrader.util.Utilities;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.net.URL;
 import java.util.List;
@@ -29,6 +32,8 @@ public class InstructionCellController implements Initializable {
     public ComboBox<TimePeriod> comboTimePeriod;
     @FXML
     public TextField txtValue;
+    @FXML
+    public Label lblEstimation;
 
     private final Instruction instruction;
 
@@ -39,7 +44,7 @@ public class InstructionCellController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
+        if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.OR) {
 
             // Setup condition combo box.
             comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
@@ -58,6 +63,8 @@ public class InstructionCellController implements Initializable {
             // Setup value text box.
             txtValue.textProperty().bindBidirectional(instruction.valueProperty());
             txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
+
+            onConditionSelected(instruction.getCondition());
 
         } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
 
@@ -88,9 +95,21 @@ public class InstructionCellController implements Initializable {
 
     @FXML
     public void deleteInstruction() {
-        ConfigurationManager.get().getCurrentStrategy().getInstructions().remove(instruction);
+        StrategyManager.get().getCurrentStrategy().getInstructions().remove(instruction);
         DatabaseUtils.deleteInstruction(instruction);
         instruction.getStrategy().updateStrategy();
+    }
+
+    public void updateEstimatedValue(double price) {
+        if (lblEstimation != null) {
+            double value = NumberUtils.toDouble(instruction.getValue(), -1);
+
+            if (value != -1) {
+                lblEstimation.setText("(~" + Utilities.formatPrice(value * price, instruction.getStrategy().getTokenPairNames()[1]) + ")");
+            } else {
+                lblEstimation.setText("");
+            }
+        }
     }
 
     private void onConditionSelected(ConditionType type) {
@@ -105,13 +124,13 @@ public class InstructionCellController implements Initializable {
         checkWhatShouldBeDisabled();
     }
 
-    private void onActionSelected(ActionType type) {
-        instruction.setAction(type);
+    private void onValueChange(String newValue) {
+        instruction.setValue(newValue);
         checkWhatShouldBeDisabled();
     }
 
-    private void onValueChange(String newValue) {
-        instruction.setValue(newValue);
+    private void onActionSelected(ActionType type) {
+        instruction.setAction(type);
         checkWhatShouldBeDisabled();
     }
 
@@ -138,8 +157,14 @@ public class InstructionCellController implements Initializable {
             return;
         }
 
+        // If condition doesn't have any actions, disable the action combo box.
+        if (comboAction != null && condition != null && condition.getSupportedInstructions().isEmpty()) {
+            comboAction.setDisable(true);
+            if (txtValue != null) txtValue.setDisable(true);
+        }
+
         // If no action is selected, disable the text value and time period combo box.
-        if (comboAction != null && comboAction.getSelectionModel().getSelectedItem() == null) {
+        if (condition != null && !condition.getSupportedInstructions().isEmpty() && comboAction != null && comboAction.getSelectionModel().getSelectedItem() == null) {
             txtValue.setDisable(true);
             comboTimePeriod.setDisable(true);
         }
@@ -157,9 +182,16 @@ public class InstructionCellController implements Initializable {
         // If time periods are support but the value doesn't have a percentage, then disable the time period.
         if (comboTimePeriod != null && !comboTimePeriod.isDisabled() && txtValue != null && action != null && action.canInputValue()
                 && (txtValue.textProperty().get() == null || !txtValue.textProperty().get().contains("%"))) {
-            comboTimePeriod.setDisable(true);
+//            comboTimePeriod.setDisable(true);
         }
 
+        if (txtValue != null && condition == ConditionType.SELL_ALL) {
+            txtValue.setDisable(true);
+        }
+
+        if (lblEstimation != null && txtValue != null) {
+            lblEstimation.setDisable(txtValue.isDisable());
+        }
 
     }
 

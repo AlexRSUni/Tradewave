@@ -26,55 +26,107 @@ public class Strategy {
 
     public String onTradePrice(long timestamp, double price, TradingData data) {
         String haltCondition = null;
-        boolean failedIf = false;
 
-        if (data.isHalted()) {
+        int depth = 0;
+        int success = -1;
+        int failed = -1;
+        boolean waitForEndIf = false;
+
+        if (data.isWaiting()) {
             return null;
         }
 
         for (Instruction instruction : instructions) {
             CryptoInstruction impl = instruction.getInstructionImpl();
 
-            if (!failedIf) {
+            if (depth > failed) {
 
                 // Check if the current instruction is an IF, if it is, ensure that the condition has been met,
                 // otherwise flag that we have failed the if statement, which will skip all following instructions
                 // until an ELSE / ELSE IF or END IF are reached.
-                if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF) {
+                if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.OR) {
 
-                    // Check condition.
-                    if (!impl.checkCondition(timestamp, price, data)) {
-                        failedIf = true;
+                    if (instruction.getType() == Instruction.InstructionType.IF || success < depth) {
+                        depth++;
+
+                        // Check condition.
+                        if (!impl.checkCondition(timestamp, price, data)) {
+                            failed = depth;
+                        } else {
+                            success = depth;
+                        }
                     }
 
-                } else if (impl != null) {
+                } else {
 
-                    // Check condition. If condition is failed, terminate the trading.
-                    if (!impl.checkCondition(timestamp, price, data)) {
-                        haltCondition = impl.getFailReason();
-                        break;
+                    if (!waitForEndIf) {
+
+                        if (instruction.getType() == Instruction.InstructionType.ELSE) {
+                            waitForEndIf = true;
+                        } else {
+                            // Check condition. If condition is failed, terminate the trading.
+                            if (impl != null && !impl.checkCondition(timestamp, price, data)) {
+                                haltCondition = impl.getFailReason();
+                                break;
+                            }
+                        }
+
+                    }
+
+                    if (instruction.getType() == Instruction.InstructionType.END_IF) {
+                        depth--;
+                        success--;
+                        waitForEndIf = false;
                     }
 
                 }
 
             } else {
 
-                // If condition is ELSE or END IF, then we can simply set the Failed IF flag back to false and move
-                // onto the next instruction.
-                if (instruction.getType() == Instruction.InstructionType.END_IF || instruction.getType() == Instruction.InstructionType.ELSE) {
-                    failedIf = false;
+                if (instruction.getType() == Instruction.InstructionType.IF) {
 
-                } else if (instruction.getType() == Instruction.InstructionType.ELSE_IF) {
+                    depth++;
+                    failed = depth;
+                    waitForEndIf = true;
 
-                    // If the condition is ELSE IF, check if the condition is met, otherwise preserve the Failed IF flag.
+                } else {
+                    if (!waitForEndIf) {
 
-                    if (impl.checkCondition(timestamp, price, data)) {
-                        failedIf = false;
+                        if (instruction.getType() == Instruction.InstructionType.OR || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.ELSE) {
+
+                            if (impl != null) {
+                                // Check condition.
+                                if (impl.checkCondition(timestamp, price, data)) {
+                                    failed--;
+                                    success = depth;
+                                }
+                            } else {
+                                failed--;
+                                success = depth;
+                            }
+
+                        } else if (instruction.getType() == Instruction.InstructionType.END_IF) {
+                            depth--;
+                            failed--;
+                        }
+
+                    } else {
+
+                        if (instruction.getType() == Instruction.InstructionType.END_IF) {
+                            depth--;
+                            failed--;
+                            waitForEndIf = false;
+                        }
+
                     }
-
                 }
 
             }
+
+            // Validate variables.
+            if (depth < 0) depth = 0;
+            if (success <= 0) success = -1;
+            if (failed <= 0) failed = -1;
 
             // If our trading data is set to should stop (e.g. a STOP condition has run) then terminate the trading.
             if (data.shouldStop()) {

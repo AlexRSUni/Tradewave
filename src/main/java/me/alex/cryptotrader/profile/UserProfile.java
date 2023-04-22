@@ -32,6 +32,7 @@ public class UserProfile {
     private final Map<String, Double> ownedTokens = new HashMap<>();
     private final String username;
 
+    private BinanceApiRestClient client;
     private Account binanceAccount;
     private String dashboardToken;
 
@@ -42,7 +43,7 @@ public class UserProfile {
 
         loadUserData(password).whenComplete((completed, throwable) -> {
             if (throwable != null || !completed) {
-                if (throwable != null) throwable.printStackTrace();
+//                if (throwable != null) throwable.printStackTrace();
                 CryptoApplication.get().logoutCurrentUser(false, "Failed to login. Throttled by Binance.");
                 return;
             }
@@ -99,21 +100,20 @@ public class UserProfile {
         }
     }
 
-    private void loadBinanceAccount(String apiKey, String secretKey, CompletableFuture<Boolean> future) {
-        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance(apiKey, secretKey);
-        BinanceApiRestClient client = factory.newRestClient();
+    public void updateFund(String token, double amount) {
+        ownedTokens.put(token, amount);
 
-        try {
-            this.binanceAccount = client.getAccount(BINANCE_API_WAIT, System.currentTimeMillis());
-            future.complete(this.binanceAccount != null);
-        } catch (BinanceApiException ex) {
-            future.completeExceptionally(ex);
-        }
+        Platform.runLater(() -> {
+            // Update Fund model to reflect changes to the GUI.
+            for (Fund fund : funds) {
+                if (fund.getToken().equalsIgnoreCase(token)) {
+                    fund.fundProperty().set(amount + " " + token);
+                }
+            }
+        });
     }
 
     private void loadFunds() {
-        CryptoApplication.get().getAvailableCurrencies().clear();
-
         for (AssetBalance balance : binanceAccount.getBalances()) {
             double amount = Double.parseDouble(balance.getFree());
 
@@ -124,6 +124,21 @@ public class UserProfile {
 
             CryptoApplication.get().getAvailableCurrencies().add(balance.getAsset());
         }
+    }
+
+    private void loadBinanceAccount(String apiKey, String secretKey, CompletableFuture<Boolean> future) {
+        BinanceApiClientFactory factory = BinanceApiClientFactory.newInstance(apiKey, secretKey);
+        BinanceApiRestClient client = factory.newRestClient();
+
+        try {
+            this.binanceAccount = client.getAccount(BINANCE_API_WAIT, System.currentTimeMillis());
+            future.complete(this.binanceAccount != null);
+        } catch (BinanceApiException ex) {
+            future.completeExceptionally(ex);
+            return;
+        }
+
+        this.client = client;
     }
 
     private void loadStrategies() {
@@ -156,6 +171,10 @@ public class UserProfile {
 
     public ObservableList<Strategy> getStrategies() {
         return strategies;
+    }
+
+    public BinanceApiRestClient getClient() {
+        return client;
     }
 
     public static UserProfile get() {

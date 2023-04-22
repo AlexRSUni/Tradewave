@@ -12,6 +12,15 @@
     -fx-background-radius: 10px;
 }
 
+.closeItem2 {
+    -fx-background-color: #544177;
+}
+
+.closeItem2:hover {
+    -fx-background-color: #F75590;
+    -fx-background-radius: 10px;
+}
+
 .editItem {
     -fx-background-color: #F3EAF4;
 }

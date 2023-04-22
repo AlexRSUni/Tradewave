@@ -11,7 +11,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import me.alex.cryptotrader.factory.TransactionCellFactory;
 import me.alex.cryptotrader.instruction.TimePeriod;
-import me.alex.cryptotrader.instruction.impl.IfInstruction;
 import me.alex.cryptotrader.manager.TestingManager;
 import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Strategy;
@@ -35,6 +34,8 @@ public class TestingController extends BaseController {
     private Label lblCurrency;
     @FXML
     private Label lblCurrencyChange;
+    @FXML
+    private Label lblTotal;
     @FXML
     private AnchorPane testingPanel;
     @FXML
@@ -81,10 +82,8 @@ public class TestingController extends BaseController {
         manager.clearTradeSeries();
     }
 
-    public void onTestFinished(Strategy strategy, double startToken, double endToken, double startCurrency, double endCurrency) {
+    public void onTestFinished(Strategy strategy, double startToken, double endToken, double startCurrency, double endCurrency, double startValue, double endValue) {
         String[] tokenPairs = strategy.getTokenPairNames();
-
-        System.out.println("OUTCOME: " + IfInstruction.COUNTER);
 
         // Hide the panel so we can see the results.
         testingPanel.setVisible(false);
@@ -93,8 +92,15 @@ public class TestingController extends BaseController {
         lblTransactions.setText(String.valueOf(transactions.size()));
         lblToken.setText(tokenPairs[0] + " Balance:");
         lblCurrency.setText(tokenPairs[1] + " Balance:");
+
         lblTokenChange.setText(Utilities.FORMAT_TWO_DECIMAL_PLACE.format(startToken) + " → " + Utilities.FORMAT_TWO_DECIMAL_PLACE.format(endToken));
         lblCurrencyChange.setText(Utilities.FORMAT_TWO_DECIMAL_PLACE.format(startCurrency) + " → " + Utilities.FORMAT_TWO_DECIMAL_PLACE.format(endCurrency));
+
+        double startingTotal = (startToken * startValue) + startCurrency;
+        double endingTotal = (endValue * endToken) + endCurrency;
+        double percentageChange = ((endingTotal / startingTotal) * 100) - 100;
+
+        lblTotal.setText(Utilities.FORMAT_TWO_DECIMAL_PLACE.format(endingTotal) + " " + tokenPairs[1] + " (" + Utilities.FORMAT_TWO_DECIMAL_PLACE.format(percentageChange) + "%)");
     }
 
     public void updateCurrencyDisplay(String token, boolean disabled) {

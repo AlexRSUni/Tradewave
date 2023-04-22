@@ -63,7 +63,7 @@
                  </effect>
                  <AnchorPane prefHeight="332.0" prefWidth="277.0">
                      <JFXListView fx:id="fundList" layoutX="6.0" layoutY="44.0" prefHeight="202.0" prefWidth="265.0" style="-fx-background-color: transparent;" stylesheets="@../../../styles/style.css" />
-                     <Text fill="WHITE" layoutX="91.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Funds">
+                     <Text fill="WHITE" layoutX="91.0" layoutY="28.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Your Funds">
                          <font>
                              <Font name="System Bold" size="18.0" />
                          </font>

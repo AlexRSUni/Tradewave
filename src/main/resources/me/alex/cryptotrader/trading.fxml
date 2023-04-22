@@ -1,22 +1,163 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="960.0" style="-fx-border-color: #544177; -fx-border-width: 10px 10px 10px 0px;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.alex.cryptotrader.controller.main.TradingController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="960.0" style="-fx-background-color: #544177;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.alex.cryptotrader.controller.main.TradingController">
     <right>
-        <AnchorPane prefHeight="200.0" prefWidth="970.0" style="-fx-background-color: #F3EAF4;">
-            <Button layoutX="905.0" layoutY="8.0" mnemonicParsing="false" onAction="#closeProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
+        <AnchorPane prefHeight="200.0" prefWidth="970.0" style="-fx-background-color: #544177;">
+            <Button layoutX="905.0" layoutY="8.0" mnemonicParsing="false" onAction="#closeProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem2" stylesheets="@../../../styles/style.css" />
             <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="905.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
                 <Image url="@../../../images/close.png" />
             </ImageView>
-            <Button layoutX="865.0" layoutY="8.0" mnemonicParsing="false" onAction="#minimiseProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem" stylesheets="@../../../styles/style.css" />
+            <Button layoutX="865.0" layoutY="8.0" mnemonicParsing="false" onAction="#minimiseProgram" prefHeight="36.0" prefWidth="36.0" styleClass="closeItem2" stylesheets="@../../../styles/style.css" />
             <ImageView fitHeight="36.0" fitWidth="36.0" layoutX="865.0" layoutY="8.0" mouseTransparent="true" preserveRatio="true">
                 <Image url="@../../../images/minimise.png" />
             </ImageView>
+            <StackPane fx:id="stackPane" layoutX="346.0" layoutY="62.0" prefHeight="385.0" prefWidth="587.0" style="-fx-background-color: #F3EAF4; -fx-background-radius: 10px;" styleClass="#544177" stylesheets="@../../../styles/style.css">
+                <effect>
+                    <DropShadow />
+                </effect>
+            </StackPane>
+            <AnchorPane layoutX="29.0" layoutY="465.0" prefHeight="296.0" prefWidth="250.0" style="-fx-background-color: #F3EAF4; -fx-background-radius: 10px;">
+                <effect>
+                    <DropShadow />
+                </effect>
+                <JFXButton buttonType="RAISED" layoutX="32.0" layoutY="40.0" onAction="#stopTrading" prefHeight="97.0" prefWidth="186.0" style="-fx-background-color: #e43b3b;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="STOP" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </JFXButton>
+                <JFXButton fx:id="btnPause" buttonType="RAISED" layoutX="32.0" layoutY="159.0" onAction="#pauseTrading" prefHeight="94.0" prefWidth="186.0" style="-fx-background-color: #6166b2;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="PAUSE" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </JFXButton>
+            </AnchorPane>
+            <AnchorPane layoutX="295.0" layoutY="465.0" prefHeight="296.0" prefWidth="343.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;">
+                <effect>
+                    <DropShadow />
+                </effect>
+                <Label layoutX="85.0" layoutY="14.0" text="Trading Information" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label alignment="CENTER" layoutX="17.0" layoutY="57.0" prefHeight="37.0" prefWidth="155.0" text="Bot Status:" textAlignment="CENTER" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblStatus" alignment="CENTER" layoutX="173.0" layoutY="57.0" prefHeight="37.0" prefWidth="145.0" text="WORKING" textAlignment="CENTER" textFill="#3ab23c">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Line endX="205.0" layoutX="117.0" layoutY="104.0" startX="-100.0" stroke="WHITE" />
+                <Label fx:id="txtValue" alignment="CENTER" layoutX="17.0" layoutY="123.0" prefHeight="30.0" prefWidth="179.0" text="Current Value:" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblPrice" alignment="CENTER" layoutX="189.0" layoutY="123.0" prefHeight="30.0" prefWidth="139.0" text="10050.12 USDT" textFill="WHITE">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Label alignment="CENTER" layoutX="14.0" layoutY="243.0" prefHeight="30.0" prefWidth="179.0" text="Total Transactions:" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblTrades" alignment="CENTER" layoutX="186.0" layoutY="243.0" prefHeight="30.0" prefWidth="139.0" text="4" textFill="WHITE">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Label alignment="CENTER" layoutX="18.0" layoutY="163.0" prefHeight="30.0" prefWidth="179.0" text="Total Value Change:" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblProfit" alignment="CENTER" layoutX="190.0" layoutY="163.0" prefHeight="30.0" prefWidth="139.0" text="+105.02 USDT" textFill="WHITE">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Label alignment="CENTER" layoutX="14.0" layoutY="203.0" prefHeight="30.0" prefWidth="179.0" text="Market Condition:" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblMarket" alignment="CENTER" layoutX="186.0" layoutY="203.0" prefHeight="30.0" prefWidth="139.0" text="UNSTABLE" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+            </AnchorPane>
+            <AnchorPane layoutX="29.0" layoutY="62.0" prefHeight="385.0" prefWidth="300.0" style="-fx-background-color: #F3EAF4; -fx-background-radius: 10px;" styleClass="#544177">
+                <effect>
+                    <DropShadow />
+                </effect>
+                <ListView fx:id="listTransactions" layoutY="36.0" prefHeight="344.0" prefWidth="300.0" style="-fx-background-color: transparent;" stylesheets="@../../../styles/style.css" />
+                <Label alignment="CENTER" layoutX="68.0" layoutY="4.0" prefHeight="29.0" prefWidth="180.0" text="Transaction Made" textAlignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+            </AnchorPane>
+            <Label layoutX="420.0" layoutY="4.0" text="Trading" textFill="WHITE">
+                <font>
+                    <Font name="System Bold" size="30.0" />
+                </font>
+            </Label>
+            <AnchorPane fx:id="startPanel" layoutX="29.0" layoutY="465.0" prefHeight="296.0" prefWidth="250.0" style="-fx-background-color: #F3EAF4; -fx-background-radius: 10px;">
+                <effect>
+                    <DropShadow />
+                </effect>
+                <JFXButton buttonType="RAISED" layoutX="32.0" layoutY="221.0" onAction="#startTrading" prefHeight="52.0" prefWidth="186.0" style="-fx-background-color: #51c955;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="START" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </JFXButton>
+                <ComboBox fx:id="comboStrategy" layoutX="73.0" layoutY="20.0" prefHeight="40.0" prefWidth="155.0" style="-fx-background-color: white;" />
+                <ImageView fitHeight="42.0" fitWidth="44.0" layoutX="23.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@../../../images/strategy.png" />
+                </ImageView>
+                <Label alignment="CENTER" layoutX="27.0" layoutY="96.0" prefHeight="41.0" prefWidth="198.0" text="Stop trading and sell if value drops below:" textAlignment="CENTER" wrapText="true">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Label>
+                <TextField fx:id="txtStopLoss" layoutX="30.0" layoutY="144.0" prefHeight="28.0" prefWidth="193.0" promptText="Enter Stop-Loss Value" style="-fx-background-color: white;" />
+                <Line endX="100.0" layoutX="125.0" layoutY="85.0" startX="-100.0" strokeWidth="3.0" />
+                <Line endX="100.0" layoutX="126.0" layoutY="195.0" startX="-100.0" strokeWidth="3.0" />
+            </AnchorPane>
+         <AnchorPane layoutX="652.0" layoutY="465.0" prefHeight="296.0" prefWidth="281.0" style="-fx-background-color: #F3EAF4; -fx-background-radius: 10px;" styleClass="#544177">
+            <effect>
+               <DropShadow />
+            </effect>
+            <children>
+               <ListView fx:id="listFunds" layoutX="8.0" layoutY="36.0" prefHeight="252.0" prefWidth="265.0" style="-fx-background-color: transparent;" stylesheets="@../../../styles/style.css" />
+               <Label layoutX="93.0" layoutY="7.0" text="Your Funds">
+                  <font>
+                     <Font name="System Bold" size="18.0" />
+                  </font>
+               </Label>
+            </children>
+         </AnchorPane>
         </AnchorPane>
     </right>
 </BorderPane>

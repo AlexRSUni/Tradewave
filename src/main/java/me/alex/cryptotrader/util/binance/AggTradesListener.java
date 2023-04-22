@@ -24,11 +24,8 @@ public class AggTradesListener {
 
     public AggTradesListener(String symbol, Consumer<Double> tokenPriceConsumer) {
         this.tokenPriceConsumer = tokenPriceConsumer;
-
-        Utilities.runTask(() -> {
-            initializeAggTradesCache(symbol);
-            startAggTradesEventStreaming(symbol);
-        });
+        initializeAggTradesCache(symbol);
+        startAggTradesEventStreaming(symbol);
     }
 
     // Initializes the aggTrades cache by using the REST API.

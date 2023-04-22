@@ -14,6 +14,7 @@ import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.Utilities;
+import me.alex.cryptotrader.util.binance.BinanceUtils;
 import me.alex.cryptotrader.util.trading.TradingData;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -70,17 +71,19 @@ public class TestingManager {
         String[] tokenPair = currentStrategy.getTokenPairNames();
         UserProfile profile = UserProfile.get();
 
-        TradingData data = new TradingData(true, profile.getOwnedToken(tokenPair[0]), NumberUtils.toDouble(currency, profile.getOwnedToken(tokenPair[1])), trade -> {
+        TradingData data = new TradingData(true, currentStrategy, profile.getOwnedToken(tokenPair[0]), NumberUtils.toDouble(currency, profile.getOwnedToken(tokenPair[1])), trade -> {
             double amount = trade[2];
             double price = trade[3];
 
             this.transactions.add(
                     new Transaction(
                             currentStrategy.tokenProperty().get(),
-                            Utilities.FORMAT_TWO_DECIMAL_PLACE.format(price) + " " + tokenPair[1],
+                            Utilities.formatPrice(price, tokenPair[1]),
                             (amount > 0 ? "+" : "") + Utilities.FORMAT_TWO_DECIMAL_PLACE.format(amount) + " " + tokenPair[0],
                             Utilities.SHORT_TIME_FORMAT.format(new Date((long) trade[1])),
-                            amount > 0 ? "green" : "red"
+                            amount > 0 ? "green" : "red",
+                            amount,
+                            -1
                     )
             );
 
@@ -115,7 +118,9 @@ public class TestingManager {
             Utilities.sendErrorAlert("Testing stopped before it could finish!", haltCondition);
         }
 
-        controller.onTestFinished(currentStrategy, data.getStartingToken(), data.getTokenAmount(), data.getStartingCurrency(), data.getCurrencyAmount());
+        controller.onTestFinished(currentStrategy, data.getStartingToken(), data.getTokenAmount(),
+                data.getStartingCurrency(), data.getCurrencyAmount(),
+                historicData.get(0)[4], historicData.get(historicData.size() - 1)[4]);
     }
 
     private String processTransaction(long timestamp, double price, TradingData data) {
@@ -165,26 +170,26 @@ public class TestingManager {
         switch (period) {
             case _48_HOURS -> {
                 long start = Instant.now().minusSeconds(48 * 60 * 60).toEpochMilli();
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start, start + 28800000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 28800000, start + 57600000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 57600000, start + 86400000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 86400000, start + 115200000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 115200000, start + 144000000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 144000000, Instant.now().toEpochMilli()));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start, start + 28800000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 28800000, start + 57600000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 57600000, start + 86400000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 86400000, start + 115200000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 115200000, start + 144000000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 144000000, Instant.now().toEpochMilli()));
             }
             case _24_HOURS -> {
                 long start = Instant.now().minusSeconds(24 * 60 * 60).toEpochMilli();
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start, start + 28800000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 28800000, start + 57600000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 57600000, Instant.now().toEpochMilli()));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start, start + 28800000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 28800000, start + 57600000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 57600000, Instant.now().toEpochMilli()));
             }
             case _12_HOURS -> {
                 long start = Instant.now().minusSeconds(12 * 60 * 60).toEpochMilli();
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start, start + 21600000));
-                historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", start + 21600000, Instant.now().toEpochMilli()));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start, start + 21600000));
+                historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", start + 21600000, Instant.now().toEpochMilli()));
             }
-            case _6_HOURS -> historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", 6 * 60 * 60));
-            case _3_HOURS -> historicData.addAll(Utilities.fetchHistoryTradingData(token, "1m", 3 * 60 * 60));
+            case _6_HOURS -> historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", 6 * 60 * 60));
+            case _3_HOURS -> historicData.addAll(BinanceUtils.fetchHistoryTradingData(token, "1m", 3 * 60 * 60));
         }
 
         List<Double> testTrades = new ArrayList<>();
@@ -232,6 +237,7 @@ public class TestingManager {
 
         buySeries = new XYChart.Series<>();
         sellSeries = new XYChart.Series<>();
+        sellSeries.setName("Price");
 
         scatterChart.getData().add(buySeries);
         scatterChart.getData().add(sellSeries);

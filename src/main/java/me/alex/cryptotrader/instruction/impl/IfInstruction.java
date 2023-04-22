@@ -30,12 +30,12 @@ public class IfInstruction extends CryptoInstruction {
         switch (condition) {
 
             case PRICE -> {
-                return handlePriceComparison(action, period, price, value, data);
+                return handlePriceComparison(action, period, price, value, data, -1);
             }
 
             case PRICE_SINCE_LAST_TRANSACTION -> {
                 double priceAtLastTransaction = data.getPriceAtLastTransaction();
-                return priceAtLastTransaction != -1 && handlePriceComparison(action, period, priceAtLastTransaction, value, data);
+                return priceAtLastTransaction != -1 && handlePriceComparison(action, period, price, value, data, priceAtLastTransaction);
             }
 
             case MARKET_CONDITION -> {
@@ -66,12 +66,20 @@ public class IfInstruction extends CryptoInstruction {
                 return compareAmount != -1 && handleWalletComparison(action, compareAmount, data.getCurrencyAmount());
             }
 
+            case LAST_TRANSACTION_WAS -> {
+                if (action == ActionType.NONE_YET) {
+                    return data.getLastTransaction() == -1;
+                }
+
+                return action == ActionType.BUY && data.wasLastTransactionBuy() || action == ActionType.SELL && !data.wasLastTransactionBuy();
+            }
+
         }
 
         return false;
     }
 
-    private boolean handlePriceComparison(ActionType action, TimePeriod period, double price, String target, TradingData data) {
+    private boolean handlePriceComparison(ActionType action, TimePeriod period, double price, String target, TradingData data, double beforeOverride) {
 
         switch (action) {
             case INCREASES_TO, RISES_ABOVE -> {
@@ -83,17 +91,25 @@ public class IfInstruction extends CryptoInstruction {
                 return parsedValue != -1 && price < parsedValue;
             }
             case INCREASES_BY, DECREASES_BY -> {
-                double parsedPercentage = NumberUtils.toDouble(target.replace("%", ""), -1);
-                double priceBefore = data.getPriceAtPeriodBefore(period);
+                double parsedValue = NumberUtils.toDouble(target.replace("%", ""), -1);
+                double priceBefore = beforeOverride != -1 ? beforeOverride : data.getPriceAtPeriodBefore(period);
 
-                if (parsedPercentage != -1 && priceBefore != -1) {
+                if (parsedValue == -1 || priceBefore == -1) {
                     return false;
                 }
 
-                if (action == ActionType.INCREASES_BY) {
-                    return price >= (priceBefore * 1 + (parsedPercentage / 100D));
+                if (target.contains("%")) {
+                    if (action == ActionType.INCREASES_BY) {
+                        return price >= (priceBefore * 1 + (parsedValue / 100D));
+                    } else {
+                        return price <= (priceBefore * 1 - (parsedValue / 100D));
+                    }
                 } else {
-                    return price <= (priceBefore * 1 - (parsedPercentage / 100D));
+                    if (action == ActionType.INCREASES_BY) {
+                        return price >= (priceBefore + parsedValue);
+                    } else {
+                        return price <= (priceBefore - parsedValue);
+                    }
                 }
             }
         }

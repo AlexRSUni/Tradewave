@@ -58,12 +58,12 @@
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </JFXButton>
-                <JFXButton fx:id="btnElseIf" buttonType="RAISED" layoutX="152.0" layoutY="140.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="ELSE IF" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                <JFXButton fx:id="btnElseIf" buttonType="RAISED" layoutX="152.0" layoutY="230.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="ELSE IF" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </JFXButton>
-                <JFXButton fx:id="btnElse" buttonType="RAISED" layoutX="152.0" layoutY="230.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="ELSE" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                <JFXButton fx:id="btnElse" buttonType="RAISED" layoutX="152.0" layoutY="320.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="ELSE" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
@@ -78,17 +78,17 @@
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </JFXButton>
-            <JFXButton fx:id="btnEndIf" buttonType="RAISED" layoutX="152.0" layoutY="320.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="END IF" textAlignment="CENTER" textFill="WHITE" wrapText="true">
-               <font>
-                  <Font name="System Bold" size="18.0" />
-               </font>
-            </JFXButton>
                 <JFXButton buttonType="RAISED" layoutX="82.0" layoutY="424.0" onAction="#saveStrategy" prefHeight="55.0" prefWidth="124.0" style="-fx-background-color: #6166aa; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="Save" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </JFXButton>
             <JFXButton fx:id="btnDivider" buttonType="RAISED" layoutX="39.0" layoutY="320.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #ff9720; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="DIVIDER" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </JFXButton>
+            <JFXButton fx:id="btnOr" buttonType="RAISED" layoutX="152.0" layoutY="140.0" prefHeight="80.0" prefWidth="100.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" styleClass="buttonItem" stylesheets="@../../../styles/style.css" text="OR" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

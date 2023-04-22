@@ -1,39 +1,31 @@
 package me.alex.cryptotrader.util;
 
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
-import javafx.util.Pair;
 import me.alex.cryptotrader.CryptoApplication;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.*;
+import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Utilities {
 
     public static final SimpleDateFormat SHORT_TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
+
     public static final DecimalFormat FORMAT_TWO_DECIMAL_PLACE = new DecimalFormat("#,###.##");
-    public static final DecimalFormat FORMAT_ONE_DECIMAL_PLACE = new DecimalFormat("#,###.#");
+    public static final DecimalFormat FORMAT_SIX_DECIMAL_PLACE = new DecimalFormat("#,###.######");
 
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
 
-    private static final Map<String, String> SYMBOL_TO_NAME = new HashMap<>();
 
     public static void runTask(Runnable runnable) {
         Task<Void> fetchTradingPairsTask = new Task<>() {
@@ -47,6 +39,14 @@ public class Utilities {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(fetchTradingPairsTask);
         executorService.shutdown();
+    }
+
+    public static String formatPrice(double price, String token) {
+        if (price < 1) {
+            return Utilities.FORMAT_SIX_DECIMAL_PLACE.format(price) + " " + token;
+        } else {
+            return Utilities.FORMAT_TWO_DECIMAL_PLACE.format(price) + " " + token;
+        }
     }
 
     public static void sendErrorAlert(String header, String message) {
@@ -69,101 +69,6 @@ public class Utilities {
         }
 
         return data;
-    }
-
-    public static String getSymbolName(String symbol) {
-        return SYMBOL_TO_NAME.getOrDefault(symbol, symbol);
-    }
-
-    public static List<double[]> fetchHistoryTradingData(String symbol, String interval, long timePeriodSeconds) {
-        long startTime = Instant.now().minusSeconds(timePeriodSeconds).toEpochMilli();
-        long endTime = Instant.now().toEpochMilli();
-        return fetchHistoryTradingData(symbol, interval, startTime, endTime);
-    }
-
-    public static List<double[]> fetchHistoryTradingData(String symbol, String interval, long startTime, long endTime) {
-        List<double[]> historicData = new ArrayList<>();
-        OkHttpClient client = new OkHttpClient();
-
-        String url = "https://api.binance.com/api/v3/klines?symbol=" + symbol + "&interval=" + interval + "&startTime=" + startTime + "&endTime=" + endTime;
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        try {
-            Response response = client.newCall(request).execute();
-
-            String jsonResponse = response.body().string();
-            JSONArray jsonArray = new JSONArray(jsonResponse);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONArray klineData = jsonArray.getJSONArray(i);
-
-                long openTime = klineData.getLong(0);
-                double open = klineData.getDouble(1);
-                double high = klineData.getDouble(2);
-                double low = klineData.getDouble(3);
-                double close = klineData.getDouble(4);
-
-                historicData.add(new double[]{openTime, open, high, low, close});
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return historicData;
-    }
-
-    public static void fetchTokenToNameData() {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url("https://api.coingecko.com/api/v3/coins/list")
-                .build();
-
-        try {
-            Response response = client.newCall(request).execute();
-
-            String jsonResponse = response.body().string();
-            JSONArray jsonArray = new JSONArray(jsonResponse);
-
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String symbol = jsonObject.getString("symbol").toUpperCase();
-                String name = jsonObject.getString("name");
-                SYMBOL_TO_NAME.put(symbol, name);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static List<String> fetchBinanceTradingPairs() {
-        List<String> tradingPairs = new ArrayList<>();
-        String url = "https://api.binance.com/api/v3/exchangeInfo";
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        try {
-            Response response = client.newCall(request).execute();
-
-            String responseBody = response.body().string();
-            JSONObject jsonObject = new JSONObject(responseBody);
-            JSONArray symbolsArray = jsonObject.getJSONArray("symbols");
-
-            for (int i = 0; i < symbolsArray.length(); i++) {
-                JSONObject symbol = symbolsArray.getJSONObject(i);
-                String tradingPair = symbol.getString("symbol");
-                tradingPairs.add(tradingPair);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return tradingPairs;
     }
 
     public static String encryptStringUsingPassword(String string, String password) {

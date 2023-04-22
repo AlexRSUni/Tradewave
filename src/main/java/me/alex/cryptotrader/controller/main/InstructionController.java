@@ -13,7 +13,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import me.alex.cryptotrader.factory.InstructionCellFactory;
-import me.alex.cryptotrader.manager.ConfigurationManager;
+import me.alex.cryptotrader.manager.StrategyManager;
 import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
@@ -32,8 +32,6 @@ public class InstructionController extends BaseController {
     @FXML
     private JFXButton btnAction;
     @FXML
-    private JFXButton btnValue;
-    @FXML
     private JFXButton btnElseIf;
     @FXML
     private JFXButton btnElse;
@@ -42,7 +40,7 @@ public class InstructionController extends BaseController {
     @FXML
     private JFXButton btnStop;
     @FXML
-    private JFXButton btnEndIf;
+    private JFXButton btnOr;
     @FXML
     private JFXButton btnDivider;
 
@@ -63,7 +61,7 @@ public class InstructionController extends BaseController {
 
     // Variables
 
-    private ConfigurationManager manager;
+    private StrategyManager manager;
     private Timer valueTask;
 
     private String[] tokenPair;
@@ -74,23 +72,27 @@ public class InstructionController extends BaseController {
         StrategyController controller = ViewManager.get().getController(ViewManager.get().getStrategyView());
         this.manager = controller.getManager();
 
-        // Store some data locally.
-        this.tokenPair = manager.getCurrentStrategy().getTokenPairNames();
-
         // Setup instruction list.
-        instructionList.setItems(manager.getCurrentStrategy().getInstructions());
         instructionList.setCellFactory(createDragAndDropFactory());
 
         // Setup click handlers.
         btnIf.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.IF));
+        btnOr.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.OR));
         btnElse.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.ELSE));
         btnElseIf.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.ELSE_IF));
-        btnEndIf.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.END_IF));
 
         btnAction.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.ACTION));
         btnWait.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.WAIT));
         btnStop.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.STOP));
         btnDivider.setOnMouseClicked(mouseEvent -> createInstruction(Instruction.InstructionType.DIVIDER));
+    }
+
+    public void setup() {
+        // Store some data locally.
+        tokenPair = manager.getCurrentStrategy().getTokenPairNames();
+
+        // Setup instruction list.
+        instructionList.setItems(manager.getCurrentStrategy().getInstructions());
 
         // Update data labels.
         lblLive.setText("Live " + tokenPair[0] + " Price:");
@@ -106,7 +108,7 @@ public class InstructionController extends BaseController {
         Strategy strategy = manager.getCurrentStrategy();
 
         // Validate our instructions.
-        String error = ValidationUtils.validateInstructionCompleting(strategy);
+        String error = ValidationUtils.validateInstructionCompleting(strategy, manager.getTradesListener().getCurrentPrice());
 
         if (error == null) {
             error = ValidationUtils.validateInstructionOrder(strategy);
@@ -136,15 +138,20 @@ public class InstructionController extends BaseController {
     }
 
     private void setupUpdatingTask() {
+        if (valueTask != null) {
+            valueTask.cancel();
+        }
+
         valueTask = new Timer();
 
         valueTask.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 Platform.runLater(() -> {
-                    lblLiveVal.setText(Utilities.FORMAT_TWO_DECIMAL_PLACE.format(manager.getTradesListener().getCurrentPrice()) + " " + tokenPair[1]);
+                    lblLiveVal.setText(Utilities.formatPrice(manager.getTradesListener().getCurrentPrice(), tokenPair[1]));
                     ownedTokenVal.setText(Utilities.FORMAT_TWO_DECIMAL_PLACE.format(UserProfile.get().getOwnedToken(tokenPair[0])) + " " + tokenPair[0]);
                     ownedCurrencyVal.setText(Utilities.FORMAT_TWO_DECIMAL_PLACE.format(UserProfile.get().getOwnedToken(tokenPair[1])) + " " + tokenPair[1]);
+                    instructionList.getItems().forEach(instruction -> instruction.getController().updateEstimatedValue(manager.getTradesListener().getCurrentPrice()));
                 });
             }
         }, 0, 1000L);
@@ -219,4 +226,13 @@ public class InstructionController extends BaseController {
             return cell;
         };
     }
+
+    public StrategyManager getManager() {
+        return manager;
+    }
+
+    public static InstructionController get() {
+        return ViewManager.get().getController(ViewManager.get().getInstructionView());
+    }
+
 }
