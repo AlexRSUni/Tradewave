@@ -179,16 +179,12 @@ public class InstructionCellController implements Initializable {
             if (comboTimePeriod != null) comboTimePeriod.setDisable(true);
         }
 
-        // If time periods are support but the value doesn't have a percentage, then disable the time period.
-        if (comboTimePeriod != null && !comboTimePeriod.isDisabled() && txtValue != null && action != null && action.canInputValue()
-                && (txtValue.textProperty().get() == null || !txtValue.textProperty().get().contains("%"))) {
-//            comboTimePeriod.setDisable(true);
-        }
-
+        // If condition is SELL_ALL, then we do not need to input a value.
         if (txtValue != null && condition == ConditionType.SELL_ALL) {
             txtValue.setDisable(true);
         }
 
+        // If the value box is disabled, then disable the estimation text.
         if (lblEstimation != null && txtValue != null) {
             lblEstimation.setDisable(txtValue.isDisable());
         }

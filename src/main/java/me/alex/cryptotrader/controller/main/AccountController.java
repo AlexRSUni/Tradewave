@@ -122,9 +122,7 @@ public class AccountController extends BaseController {
     }
 
     private void processLogin(String username, String password, boolean stayLoggedIn) {
-        if (DatabaseUtils.validateLogin(username, password, stayLoggedIn)) {
-//            ViewManager.get().showScene("interface");
-        } else {
+        if (!DatabaseUtils.validateLogin(username, password, stayLoggedIn)) {
             lblMessageRem.setText("Invalid username or password.");
         }
     }

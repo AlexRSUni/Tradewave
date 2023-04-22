@@ -79,7 +79,7 @@ public class TestingController extends BaseController {
     public void resetTest() {
         transactions.clear();
         testingPanel.setVisible(true);
-        manager.clearTradeSeries();
+        manager.getMarketPanel().resetAll();
     }
 
     public void onTestFinished(Strategy strategy, double startToken, double endToken, double startCurrency, double endCurrency, double startValue, double endValue) {

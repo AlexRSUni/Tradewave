@@ -55,14 +55,14 @@
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </Label>
-                <Label alignment="CENTER" layoutX="17.0" layoutY="57.0" prefHeight="37.0" prefWidth="155.0" text="Bot Status:" textAlignment="CENTER" textFill="WHITE">
+                <Label alignment="CENTER" layoutX="15.0" layoutY="63.0" prefHeight="37.0" prefWidth="88.0" text="Status:" textAlignment="CENTER" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="24.0" />
                     </font>
                 </Label>
-                <Label fx:id="lblStatus" alignment="CENTER" layoutX="173.0" layoutY="57.0" prefHeight="37.0" prefWidth="145.0" text="WORKING" textAlignment="CENTER" textFill="#3ab23c">
+                <Label fx:id="lblStatus" alignment="CENTER" layoutX="105.0" layoutY="64.0" prefHeight="37.0" prefWidth="220.0" text="NOT CONNECTED" textAlignment="CENTER" textFill="RED">
                     <font>
-                        <Font name="System Bold" size="24.0" />
+                        <Font name="System Bold" size="23.0" />
                     </font>
                 </Label>
                 <Line endX="205.0" layoutX="117.0" layoutY="104.0" startX="-100.0" stroke="WHITE" />
@@ -76,12 +76,12 @@
                         <Font size="18.0" />
                     </font>
                 </Label>
-                <Label alignment="CENTER" layoutX="14.0" layoutY="243.0" prefHeight="30.0" prefWidth="179.0" text="Total Transactions:" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+                <Label alignment="CENTER" layoutX="20.0" layoutY="243.0" prefHeight="30.0" prefWidth="207.0" text="Total Processed Trades:" textAlignment="CENTER" textFill="WHITE" wrapText="true">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </Label>
-                <Label fx:id="lblTrades" alignment="CENTER" layoutX="186.0" layoutY="243.0" prefHeight="30.0" prefWidth="139.0" text="4" textFill="WHITE">
+                <Label fx:id="lblTrades" alignment="CENTER" layoutX="235.0" layoutY="243.0" prefHeight="30.0" prefWidth="81.0" text="4" textFill="WHITE">
                     <font>
                         <Font size="18.0" />
                     </font>

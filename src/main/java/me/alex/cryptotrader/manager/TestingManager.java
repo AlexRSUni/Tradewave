@@ -1,18 +1,13 @@
 package me.alex.cryptotrader.manager;
 
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ScatterChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.layout.StackPane;
-import javafx.util.StringConverter;
 import me.alex.cryptotrader.controller.main.TestingController;
 import me.alex.cryptotrader.instruction.TimePeriod;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
+import me.alex.cryptotrader.util.MarketPanel;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.binance.BinanceUtils;
 import me.alex.cryptotrader.util.trading.TradingData;
@@ -27,27 +22,19 @@ public class TestingManager {
 
     private final ObservableList<Transaction> transactions;
     private final TestingController controller;
+    private final MarketPanel marketPanel;
 
-    // Graph data.
-    private LineChart<Number, Number> lineChart;
-
-    private XYChart.Series<Number, Number> lineSeries;
-    private XYChart.Series<Number, Number> buySeries;
-    private XYChart.Series<Number, Number> sellSeries;
-
-    private NumberAxis xAxis, yAxis;
+    // Historic data cache.
+    private List<double[]> historicData;
 
     // Selected strategy.
     private Strategy currentStrategy;
     private TimePeriod period;
-    private List<double[]> historicData;
 
     public TestingManager(TestingController controller, StackPane stackPane, ObservableList<Transaction> transactions) {
+        this.marketPanel = new MarketPanel(true, "Price", stackPane);
         this.transactions = transactions;
         this.controller = controller;
-
-        // Create the graph which will display the price.
-        createGraphs(stackPane);
     }
 
     public void startStrategyTest(String currency) {
@@ -87,15 +74,7 @@ public class TestingManager {
                     )
             );
 
-            if (amount > 0) {
-                XYChart.Data<Number, Number> buyPoint = new XYChart.Data<>(trade[0], price);
-                buySeries.getData().add(buyPoint);
-                Platform.runLater(() -> buyPoint.getNode().getStyleClass().add("buy-point"));
-            } else {
-                XYChart.Data<Number, Number> sellPoint = new XYChart.Data<>(trade[0], price);
-                sellSeries.getData().add(sellPoint);
-                Platform.runLater(() -> sellPoint.getNode().getStyleClass().add("sell-point"));
-            }
+            marketPanel.addScatterData((int) trade[0], price, amount > 0);
         });
 
         String haltCondition = null;
@@ -148,22 +127,19 @@ public class TestingManager {
         }
     }
 
-    public void clearTradeSeries() {
-        buySeries.getData().clear();
-        sellSeries.getData().clear();
-    }
-
     private void fetchAndPopulateGraph() {
         List<Double> testTrades = gatherTestTrades(period, currentStrategy.tokenProperty().get());
-        updateChart(testTrades);
+        marketPanel.addGraphData(testTrades, true);
 
         // Update text box status.
         controller.updateCurrencyDisplay(currentStrategy.getTokenPairNames()[1], false);
 
         // Update the charts title.
-        lineChart.setTitle(period.getShortName() + " " + currentStrategy.tokenProperty().get() + " Prices");
+        marketPanel.setTitle(period.getShortName() + " " + currentStrategy.tokenProperty().get() + " Prices");
     }
 
+    // Loads our historic data from the Binance API. For longer time periods, we need to string together requests as
+    // the API only responds with so many values.
     private List<Double> gatherTestTrades(TimePeriod period, String token) {
         historicData = new ArrayList<>();
 
@@ -202,79 +178,7 @@ public class TestingManager {
         return testTrades;
     }
 
-    private void createGraphs(StackPane stackPane) {
-        xAxis = new NumberAxis();
-        yAxis = new NumberAxis();
-
-        lineChart = new LineChart<>(xAxis, yAxis);
-        ScatterChart<Number, Number> scatterChart = new ScatterChart<>(xAxis, yAxis);
-
-        yAxis.setAutoRanging(false);
-        yAxis.setTickMarkVisible(false);
-        yAxis.setTickUnit(100);
-
-        xAxis.setLabel("");
-        xAxis.setTickUnit(1);
-        xAxis.setMinorTickVisible(false);
-
-        xAxis.setTickLabelFormatter(new StringConverter<>() {
-            @Override
-            public String toString(Number object) {
-                return "";
-            }
-
-            @Override
-            public Number fromString(String string) {
-                return null;
-            }
-        });
-
-        lineSeries = new XYChart.Series<>();
-        lineSeries.setName("Price");
-        lineChart.setCreateSymbols(false);
-        lineChart.setAnimated(false);
-        lineChart.getData().add(lineSeries);
-
-        buySeries = new XYChart.Series<>();
-        sellSeries = new XYChart.Series<>();
-        sellSeries.setName("Price");
-
-        scatterChart.getData().add(buySeries);
-        scatterChart.getData().add(sellSeries);
-
-        scatterChart.setOpacity(1);
-        scatterChart.setHorizontalGridLinesVisible(false);
-        scatterChart.setVerticalGridLinesVisible(false);
-        scatterChart.setAlternativeColumnFillVisible(false);
-        scatterChart.setAlternativeRowFillVisible(false);
-        scatterChart.setTitle(" ");
-        scatterChart.setAnimated(false);
-
-        // Other configurations
-        lineChart.lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
-        scatterChart.lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
-
-        stackPane.getChildren().addAll(lineChart, scatterChart);
-    }
-
-    private void updateChart(List<Double> graphData) {
-        lineSeries.getData().clear();
-        buySeries.getData().clear();
-        sellSeries.getData().clear();
-
-        for (int i = 0; i < graphData.size(); i++) {
-            double price = graphData.get(i);
-            lineSeries.getData().add(new XYChart.Data<>(i + 1, price));
-        }
-
-        xAxis.setAutoRanging(false);
-        xAxis.setLowerBound(0);
-        xAxis.setUpperBound(graphData.size());
-        xAxis.setTickUnit(100);
-
-        double minPrice = graphData.stream().mapToDouble(Double::doubleValue).min().orElse(0.0);
-        double maxPrice = graphData.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
-        yAxis.setLowerBound(minPrice);
-        yAxis.setUpperBound(maxPrice);
+    public MarketPanel getMarketPanel() {
+        return marketPanel;
     }
 }

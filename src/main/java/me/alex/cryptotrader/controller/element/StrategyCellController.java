@@ -55,12 +55,15 @@ public class StrategyCellController implements Initializable {
         }
     }
 
+    // Ensure that the strategy we are modifying or delete isn't currently being traded with.
     private boolean validateCurrentlyUsedStrategy() {
         Strategy tradingStrategy = TradingManager.get().getStrategy();
+
         if (tradingStrategy != null && tradingStrategy == strategy && TradingManager.get().isTrading()) {
             Utilities.sendErrorAlert("Cannot modify strategy!", "This strategy is currently in use! Stop trading first!");
             return false;
         }
+
         return true;
     }
 

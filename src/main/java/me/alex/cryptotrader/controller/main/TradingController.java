@@ -56,6 +56,9 @@ public class TradingController extends BaseController {
 
     private TradingManager manager;
 
+    private int tradeCounter;
+    private boolean waitingForConnection;
+
     @FXML
     public void initialize() {
         // Init manager.
@@ -79,7 +82,7 @@ public class TradingController extends BaseController {
         lblMarket.setText("");
         lblTrades.setText("");
 
-        lblStatus.setText("NOT ACTIVE");
+        lblStatus.setText("NOT CONNECTED");
         lblStatus.setStyle("-fx-text-fill: red;");
     }
 
@@ -94,8 +97,7 @@ public class TradingController extends BaseController {
         startPanel.setVisible(false);
 
         // Update status display.
-        lblStatus.setText("ACTIVE");
-        lblStatus.setStyle("-fx-text-fill: #3ab23c;");
+        setStatusText("TRADING " + manager.getStrategy().getTokenPairNames()[0], "#3ab23c");
     }
 
     @FXML
@@ -104,8 +106,7 @@ public class TradingController extends BaseController {
         startPanel.setVisible(true);
 
         // Update status display.
-        lblStatus.setText("NOT ACTIVE");
-        lblStatus.setStyle("-fx-text-fill: red;");
+        setStatusText("WAITING TO START", "red");
     }
 
     @FXML
@@ -115,21 +116,24 @@ public class TradingController extends BaseController {
         // Update status display.
         if (manager.isPaused()) {
             btnPause.textProperty().set("CONTINUE");
-            lblStatus.setText("PAUSED");
-            lblStatus.setStyle("-fx-text-fill: orange;");
+            setStatusText("PAUSED " + "(" + manager.getStrategy().getTokenPairNames()[0] + ")", "orange");
         } else {
             btnPause.textProperty().set("PAUSE");
-            lblStatus.setText("ACTIVE");
-            lblStatus.setStyle("-fx-text-fill: #3ab23c;");
+            setStatusText("TRADING " + manager.getStrategy().getTokenPairNames()[0], "#3ab23c");
         }
     }
 
     public void onUpdate(Strategy strategy, double value, TradingData data) {
         String token = strategy.getTokenPairNames()[1];
 
+        if (waitingForConnection) {
+            setStatusText("WAITING TO START", "red");
+            waitingForConnection = false;
+        }
+
         txtValue.setText("Current " + strategy.getTokenPairNames()[0] + " Value:");
         lblPrice.setText(Utilities.formatPrice(value, token));
-        lblTrades.setText(String.valueOf(transactions.size()));
+        lblTrades.setText(String.valueOf(++tradeCounter));
 
         if (data != null) {
             lblMarket.setText(data.getMarketCondition().name().replace("_", " "));
@@ -143,12 +147,22 @@ public class TradingController extends BaseController {
     }
 
     private void onStrategyChange(Strategy strategy) {
+        waitingForConnection = true;
+        setStatusText("CONNECTING...", "#e4aca3");
+
         transactions.clear();
+
         listFunds.setItems(UserProfile.get().getFunds().filtered(fund -> {
             String token = fund.getToken();
             return token.equalsIgnoreCase(strategy.getTokenPairNames()[0]) || token.equalsIgnoreCase(strategy.getTokenPairNames()[1]);
         }));
+
         manager.selectTradingStrategy(strategy);
+    }
+
+    private void setStatusText(String text, String color) {
+        lblStatus.setText(text);
+        lblStatus.setStyle("-fx-text-fill: " + color + ";");
     }
 
     public TradingManager getManager() {
