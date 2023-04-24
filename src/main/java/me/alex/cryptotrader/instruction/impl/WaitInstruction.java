@@ -2,7 +2,7 @@ package me.alex.cryptotrader.instruction.impl;
 
 import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.models.Instruction;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 
 public class WaitInstruction extends CryptoInstruction {
 
@@ -11,8 +11,8 @@ public class WaitInstruction extends CryptoInstruction {
     }
 
     @Override
-    public boolean checkCondition(long timestamp, double price, TradingData data) {
-        data.setHalt(timestamp, instruction.getTimePeriod());
+    public boolean checkInstruction(long timestamp, double price, TradingSession session) {
+        session.setHalt(timestamp, instruction.getTimePeriod());
         return true;
     }
 }

@@ -10,7 +10,7 @@ import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.MarketPanel;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.binance.BinanceUtils;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.time.Instant;
@@ -58,7 +58,7 @@ public class TestingManager {
         String[] tokenPair = currentStrategy.getTokenPairNames();
         UserProfile profile = UserProfile.get();
 
-        TradingData data = new TradingData(true, currentStrategy, profile.getOwnedToken(tokenPair[0]), NumberUtils.toDouble(currency, profile.getOwnedToken(tokenPair[1])), trade -> {
+        TradingSession data = new TradingSession(true, currentStrategy, profile.getOwnedToken(tokenPair[0]), NumberUtils.toDouble(currency, profile.getOwnedToken(tokenPair[1])), trade -> {
             double amount = trade[2];
             double price = trade[3];
 
@@ -102,7 +102,7 @@ public class TestingManager {
                 historicData.get(0)[4], historicData.get(historicData.size() - 1)[4]);
     }
 
-    private String processTransaction(long timestamp, double price, TradingData data) {
+    private String processTransaction(long timestamp, double price, TradingSession data) {
         data.addMarketTransaction(timestamp, price);
         return currentStrategy.onTradePrice(timestamp, price, data);
     }

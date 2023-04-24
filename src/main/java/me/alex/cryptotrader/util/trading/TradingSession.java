@@ -9,7 +9,7 @@ import me.alex.cryptotrader.profile.UserProfile;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class TradingData {
+public class TradingSession {
 
     private final Map<Long, Double> previousPrices = new LinkedHashMap<>();
     private final Map<Long, ActionType> previousMarketConditions = new LinkedHashMap<>();
@@ -43,7 +43,7 @@ public class TradingData {
     private long waitTimestamp;
     private long waitDuration;
 
-    public TradingData(boolean isTest, Strategy strategy, double startingToken, double startingCurrency, Consumer<double[]> transactionConsumer) {
+    public TradingSession(boolean isTest, Strategy strategy, double startingToken, double startingCurrency, Consumer<double[]> transactionConsumer) {
         this.isTest = isTest;
         this.strategy = strategy;
         this.startingToken = this.tokenAmount = startingToken;

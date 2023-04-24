@@ -11,7 +11,7 @@ import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.profile.UserProfile;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.text.DecimalFormat;
@@ -25,7 +25,7 @@ public class ActionInstruction extends CryptoInstruction {
     }
 
     @Override
-    public boolean checkCondition(long timestamp, double price, TradingData data) {
+    public boolean checkInstruction(long timestamp, double price, TradingSession session) {
         ConditionType condition = instruction.getCondition();
         String value = instruction.getValue();
 
@@ -35,9 +35,9 @@ public class ActionInstruction extends CryptoInstruction {
                 double toBuy = NumberUtils.toDouble(value, -1);
 
                 if (toBuy != -1) {
-                    if (data.getCurrencyAmount() >= toBuy * price) {
-                        if (buy(UserProfile.get().getClient(), instruction.getStrategy(), toBuy, price, data)) {
-                            data.addUserTransaction(timestamp, toBuy, price);
+                    if (session.getCurrencyAmount() >= toBuy * price) {
+                        if (buy(UserProfile.get().getClient(), instruction.getStrategy(), toBuy, price, session)) {
+                            session.addUserTransaction(timestamp, toBuy, price);
                             return true;
                         } else {
                             setFailReason("Buy transaction was not completed.");
@@ -54,9 +54,9 @@ public class ActionInstruction extends CryptoInstruction {
                 double toSell = NumberUtils.toDouble(value, -1);
 
                 if (toSell != -1) {
-                    if (data.getTokenAmount() >= toSell) {
-                        if (sell(UserProfile.get().getClient(), instruction.getStrategy(), toSell, price, data)) {
-                            data.addUserTransaction(timestamp, -toSell, price);
+                    if (session.getTokenAmount() >= toSell) {
+                        if (sell(UserProfile.get().getClient(), instruction.getStrategy(), toSell, price, session)) {
+                            session.addUserTransaction(timestamp, -toSell, price);
                             return true;
                         } else {
                             setFailReason("Sell transaction was not completed.");
@@ -70,11 +70,11 @@ public class ActionInstruction extends CryptoInstruction {
             }
 
             case SELL_ALL -> {
-                double amountOwned = data.getTokenAmount();
+                double amountOwned = session.getTokenAmount();
 
                 if (amountOwned > 0) {
-                    if (sell(UserProfile.get().getClient(), instruction.getStrategy(), amountOwned, price, data)) {
-                        data.addUserTransaction(timestamp, -amountOwned, price);
+                    if (sell(UserProfile.get().getClient(), instruction.getStrategy(), amountOwned, price, session)) {
+                        session.addUserTransaction(timestamp, -amountOwned, price);
                         return true;
                     } else {
                         setFailReason("Sell transaction was not completed.");
@@ -91,7 +91,7 @@ public class ActionInstruction extends CryptoInstruction {
         return false;
     }
 
-    private boolean buy(BinanceApiRestClient client, Strategy strategy, double buy, double price, TradingData data) {
+    private boolean buy(BinanceApiRestClient client, Strategy strategy, double buy, double price, TradingSession data) {
         if (data.isTest()) {
             data.incTokenAmount(buy);
             data.incCurrencyAmount(-(buy * price));
@@ -111,7 +111,7 @@ public class ActionInstruction extends CryptoInstruction {
         return false;
     }
 
-    private boolean sell(BinanceApiRestClient client, Strategy strategy, double sell, double price, TradingData data) {
+    private boolean sell(BinanceApiRestClient client, Strategy strategy, double sell, double price, TradingSession data) {
         if (data.isTest()) {
             data.incTokenAmount(-sell);
             data.incCurrencyAmount(sell * price);

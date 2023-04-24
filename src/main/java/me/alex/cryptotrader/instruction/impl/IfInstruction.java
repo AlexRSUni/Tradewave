@@ -5,7 +5,7 @@ import me.alex.cryptotrader.instruction.ConditionType;
 import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.instruction.TimePeriod;
 import me.alex.cryptotrader.models.Instruction;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class IfInstruction extends CryptoInstruction {
     }
 
     @Override
-    public boolean checkCondition(long timestamp, double price, TradingData data) {
+    public boolean checkInstruction(long timestamp, double price, TradingSession session) {
         ConditionType condition = instruction.getCondition();
         ActionType action = instruction.getAction();
 
@@ -30,16 +30,16 @@ public class IfInstruction extends CryptoInstruction {
         switch (condition) {
 
             case PRICE -> {
-                return handlePriceComparison(action, period, price, value, data, -1);
+                return handlePriceComparison(action, period, price, value, session, -1);
             }
 
             case PRICE_SINCE_LAST_TRANSACTION -> {
-                double priceAtLastTransaction = data.getPriceAtLastTransaction();
-                return priceAtLastTransaction != -1 && handlePriceComparison(action, period, price, value, data, priceAtLastTransaction);
+                double priceAtLastTransaction = session.getPriceAtLastTransaction();
+                return priceAtLastTransaction != -1 && handlePriceComparison(action, period, price, value, session, priceAtLastTransaction);
             }
 
             case MARKET_CONDITION -> {
-                ActionType mostFrequent = data.getMostFrequencyMarketState(period);
+                ActionType mostFrequent = session.getMostFrequencyMarketState(period);
 
                 COUNTER.put(mostFrequent, COUNTER.getOrDefault(mostFrequent, 0) + 1);
 
@@ -47,7 +47,7 @@ public class IfInstruction extends CryptoInstruction {
             }
 
             case HAS_MADE_TRANSACTION, NOT_MADE_TRANSACTION -> {
-                long timeSinceLastTransaction = timestamp - data.getLastTransaction();
+                long timeSinceLastTransaction = timestamp - session.getLastTransaction();
 
                 if (condition == ConditionType.HAS_MADE_TRANSACTION) {
                     return timeSinceLastTransaction < period.getMilliseconds();
@@ -58,20 +58,20 @@ public class IfInstruction extends CryptoInstruction {
 
             case OWNED_TOKEN_AMOUNT -> {
                 double compareAmount = NumberUtils.toDouble(value, -1);
-                return compareAmount != -1 && handleWalletComparison(action, compareAmount, data.getTokenAmount());
+                return compareAmount != -1 && handleWalletComparison(action, compareAmount, session.getTokenAmount());
             }
 
             case OWNED_CURRENCY_AMOUNT -> {
                 double compareAmount = NumberUtils.toDouble(value, -1);
-                return compareAmount != -1 && handleWalletComparison(action, compareAmount, data.getCurrencyAmount());
+                return compareAmount != -1 && handleWalletComparison(action, compareAmount, session.getCurrencyAmount());
             }
 
             case LAST_TRANSACTION_WAS -> {
                 if (action == ActionType.NONE_YET) {
-                    return data.getLastTransaction() == -1;
+                    return session.getLastTransaction() == -1;
                 }
 
-                return action == ActionType.BUY && data.wasLastTransactionBuy() || action == ActionType.SELL && !data.wasLastTransactionBuy();
+                return action == ActionType.BUY && session.wasLastTransactionBuy() || action == ActionType.SELL && !session.wasLastTransactionBuy();
             }
 
         }
@@ -79,7 +79,7 @@ public class IfInstruction extends CryptoInstruction {
         return false;
     }
 
-    private boolean handlePriceComparison(ActionType action, TimePeriod period, double price, String target, TradingData data, double beforeOverride) {
+    private boolean handlePriceComparison(ActionType action, TimePeriod period, double price, String target, TradingSession data, double beforeOverride) {
 
         switch (action) {
             case INCREASES_TO, RISES_ABOVE -> {

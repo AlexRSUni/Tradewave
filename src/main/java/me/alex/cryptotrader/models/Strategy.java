@@ -5,7 +5,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.util.Utilities;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 
 public class Strategy {
 
@@ -24,7 +24,7 @@ public class Strategy {
         this.instructions = instructions;
     }
 
-    public String onTradePrice(long timestamp, double price, TradingData data) {
+    public String onTradePrice(long timestamp, double price, TradingSession data) {
         String haltCondition = null;
 
         int depth = 0;
@@ -50,7 +50,7 @@ public class Strategy {
                         depth++;
 
                         // Check condition.
-                        if (!impl.checkCondition(timestamp, price, data)) {
+                        if (!impl.checkInstruction(timestamp, price, data)) {
                             failed = depth;
                         } else {
                             success = depth;
@@ -65,7 +65,7 @@ public class Strategy {
                             waitForEndIf = true;
                         } else {
                             // Check condition. If condition is failed, terminate the trading.
-                            if (impl != null && !impl.checkCondition(timestamp, price, data)) {
+                            if (impl != null && !impl.checkInstruction(timestamp, price, data)) {
                                 haltCondition = impl.getFailReason();
                                 break;
                             }
@@ -96,7 +96,7 @@ public class Strategy {
 
                             if (impl != null) {
                                 // Check condition.
-                                if (impl.checkCondition(timestamp, price, data)) {
+                                if (impl.checkInstruction(timestamp, price, data)) {
                                     failed--;
                                     success = depth;
                                 }

@@ -19,7 +19,7 @@ import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.Utilities;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 
 public class TradingController extends BaseController {
 
@@ -123,7 +123,7 @@ public class TradingController extends BaseController {
         }
     }
 
-    public void onUpdate(Strategy strategy, double value, TradingData data) {
+    public void onUpdate(Strategy strategy, double value, TradingSession data) {
         String token = strategy.getTokenPairNames()[1];
 
         if (waitingForConnection) {

@@ -11,7 +11,7 @@ import me.alex.cryptotrader.util.MarketPanel;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.binance.AggTradesListener;
 import me.alex.cryptotrader.util.binance.BinanceUtils;
-import me.alex.cryptotrader.util.trading.TradingData;
+import me.alex.cryptotrader.util.trading.TradingSession;
 
 import java.util.Collections;
 import java.util.Date;
@@ -25,7 +25,7 @@ public class TradingManager {
     private final MarketPanel marketPanel;
 
     private AggTradesListener tradingListener;
-    private TradingData tradingData;
+    private TradingSession tradingSession;
     private Strategy strategy;
     private String tokenPair;
 
@@ -60,7 +60,7 @@ public class TradingManager {
         marketPanel.updateChart();
 
         // Register trade data.
-        tradingData = new TradingData(false, strategy, UserProfile.get().getOwnedToken(strategy.getTokenPairNames()[0]), UserProfile.get().getOwnedToken(strategy.getTokenPairNames()[1]), this::processTrade);
+        tradingSession = new TradingSession(false, strategy, UserProfile.get().getOwnedToken(strategy.getTokenPairNames()[0]), UserProfile.get().getOwnedToken(strategy.getTokenPairNames()[1]), this::processTrade);
 
         // Start trading listener.
         startTradeListener();
@@ -102,10 +102,10 @@ public class TradingManager {
 
         tradingListener = createListener(tokenPair, price -> {
             // Add in the market transaction to our trade.
-            tradingData.addMarketTransaction(System.currentTimeMillis(), price);
+            tradingSession.addMarketTransaction(System.currentTimeMillis(), price);
 
             if (isTrading && !isPaused) {
-                String output = strategy.onTradePrice(System.currentTimeMillis(), price, tradingData);
+                String output = strategy.onTradePrice(System.currentTimeMillis(), price, tradingSession);
                 if (output != null) stopTrading(output);
             }
 
@@ -115,7 +115,7 @@ public class TradingManager {
                     lastGraphUpdate = System.currentTimeMillis();
                 }
 
-                controller.onUpdate(strategy, price, tradingData);
+                controller.onUpdate(strategy, price, tradingSession);
             });
         });
     }
