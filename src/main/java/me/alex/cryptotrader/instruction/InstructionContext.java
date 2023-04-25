@@ -4,40 +4,40 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public enum ConditionType {
+public enum InstructionContext {
 
-    PRICE(Arrays.asList(ActionType.PRICE_CONDITIONS), true),
-    PRICE_SINCE_LAST_TRANSACTION(Arrays.asList(ActionType.PRICE_CONDITIONS), false),
-    MARKET_CONDITION(Arrays.asList(ActionType.MARKET_CONDITIONS), true),
+    PRICE(Arrays.asList(ContextState.PRICE_CONDITIONS), true),
+    PRICE_SINCE_LAST_TRANSACTION(Arrays.asList(ContextState.PRICE_CONDITIONS), false),
+    MARKET_CONDITION(Arrays.asList(ContextState.MARKET_CONDITIONS), true),
     NOT_MADE_TRANSACTION(Collections.emptyList(), true),
     HAS_MADE_TRANSACTION(Collections.emptyList(), true),
-    OWNED_TOKEN_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false),
-    OWNED_CURRENCY_AMOUNT(Arrays.asList(ActionType.WALLET_CONDITIONS), false),
-    LAST_TRANSACTION_WAS(Arrays.asList(ActionType.LAST_TRANSACTION), false),
+    OWNED_TOKEN_AMOUNT(Arrays.asList(ContextState.WALLET_CONDITIONS), false),
+    OWNED_CURRENCY_AMOUNT(Arrays.asList(ContextState.WALLET_CONDITIONS), false),
+    LAST_TRANSACTION_WAS(Arrays.asList(ContextState.LAST_TRANSACTION), false),
 
     BUY(Collections.emptyList(), false),
     SELL(Collections.emptyList(), false),
     SELL_ALL(Collections.emptyList(), false),
     ;
 
-    public static final ConditionType[] CONDITIONS = new ConditionType[]{
+    public static final InstructionContext[] CONDITIONS = new InstructionContext[]{
             PRICE, PRICE_SINCE_LAST_TRANSACTION, MARKET_CONDITION, NOT_MADE_TRANSACTION, HAS_MADE_TRANSACTION,
             OWNED_TOKEN_AMOUNT, OWNED_CURRENCY_AMOUNT, LAST_TRANSACTION_WAS
     };
 
-    public static final ConditionType[] ACTION_CONDITIONS = new ConditionType[]{
+    public static final InstructionContext[] ACTION_CONDITIONS = new InstructionContext[]{
             BUY, SELL, SELL_ALL
     };
 
-    private final List<ActionType> supportedInstructions;
+    private final List<ContextState> supportedInstructions;
     private final boolean hasTimePeriod;
 
-    ConditionType(List<ActionType> supportedInstructions, boolean hasTimePeriod) {
+    InstructionContext(List<ContextState> supportedInstructions, boolean hasTimePeriod) {
         this.supportedInstructions = supportedInstructions;
         this.hasTimePeriod = hasTimePeriod;
     }
 
-    public List<ActionType> getSupportedInstructions() {
+    public List<ContextState> getSupportedInstructions() {
         return supportedInstructions;
     }
 

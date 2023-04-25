@@ -58,7 +58,7 @@ public class TestingManager {
         String[] tokenPair = currentStrategy.getTokenPairNames();
         UserProfile profile = UserProfile.get();
 
-        TradingSession data = new TradingSession(true, currentStrategy, profile.getOwnedToken(tokenPair[0]), NumberUtils.toDouble(currency, profile.getOwnedToken(tokenPair[1])), trade -> {
+        TradingSession session = new TradingSession(true, currentStrategy, profile.getOwnedToken(tokenPair[0]), NumberUtils.toDouble(currency, profile.getOwnedToken(tokenPair[1])), trade -> {
             double amount = trade[2];
             double price = trade[3];
 
@@ -79,14 +79,16 @@ public class TestingManager {
 
         String haltCondition = null;
 
+        // Iterate over all historic data and process our transaction.
         for (double[] trade : historicData) {
-            haltCondition = processTransaction((long) trade[0], trade[1], data);
+            long timestamp = (long) trade[0];
+            double price = trade[1];
 
-            if (haltCondition != null) {
-                break;
-            }
+            // Update our session.
+            session.addMarketTransaction(timestamp, price);
 
-            haltCondition = processTransaction((long) (trade[0] + 30_000), trade[4], data);
+            // Check our strategy.
+            haltCondition = currentStrategy.onTradePrice(timestamp, price, session);
 
             if (haltCondition != null) {
                 break;
@@ -97,14 +99,9 @@ public class TestingManager {
             Utilities.sendErrorAlert("Testing stopped before it could finish!", haltCondition);
         }
 
-        controller.onTestFinished(currentStrategy, data.getStartingToken(), data.getTokenAmount(),
-                data.getStartingCurrency(), data.getCurrencyAmount(),
+        controller.onTestFinished(currentStrategy, session.getStartingToken(), session.getTokenAmount(),
+                session.getStartingCurrency(), session.getCurrencyAmount(),
                 historicData.get(0)[4], historicData.get(historicData.size() - 1)[4]);
-    }
-
-    private String processTransaction(long timestamp, double price, TradingSession data) {
-        data.addMarketTransaction(timestamp, price);
-        return currentStrategy.onTradePrice(timestamp, price, data);
     }
 
     public void onStrategySelected(Strategy strategy) {

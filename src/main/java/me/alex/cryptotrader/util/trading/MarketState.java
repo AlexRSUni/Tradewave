@@ -1,19 +1,19 @@
 package me.alex.cryptotrader.util.trading;
 
-import me.alex.cryptotrader.instruction.ActionType;
+import me.alex.cryptotrader.instruction.ContextState;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class PeriodChange {
+public class MarketState {
 
-    private final LinkedList<ActionType> previousStates = new LinkedList<>();
+    private final LinkedList<ContextState> previousStates = new LinkedList<>();
 
     private final int max;
 
     private int up, down;
 
-    public PeriodChange(int max) {
+    public MarketState(int max) {
         this.max = max;
     }
 
@@ -42,31 +42,31 @@ public class PeriodChange {
         return (int) Math.round((up ? this.up / (double) getSize() : this.down / (double) getSize()) * 100);
     }
 
-    public ActionType getState() {
+    public ContextState getState() {
         int percentage = getPercentage(true);
 
         if (percentage > 90) {
-            return ActionType.SKYROCKETING;
+            return ContextState.SKYROCKETING;
         } else if (percentage > 75) {
-            return ActionType.FAST_CLIMB;
+            return ContextState.FAST_CLIMB;
         } else if (percentage > 60) {
-            return ActionType.CLIMBING;
+            return ContextState.CLIMBING;
         } else if (percentage > 40) {
-            return ActionType.UNSTABLE;
+            return ContextState.UNSTABLE;
         } else if (percentage > 25) {
-            return ActionType.DECLINING;
+            return ContextState.DECLINING;
         } else if (percentage > 10) {
-            return ActionType.FAST_DECLINE;
+            return ContextState.FAST_DECLINE;
         } else {
-            return ActionType.IN_FREEFALL;
+            return ContextState.IN_FREEFALL;
         }
     }
 
-    public int getRecentStates(int check, ActionType... states) {
+    public int getRecentStates(int check, ContextState... states) {
         int counter = 0;
         for (int i = 0; i < Math.min(previousStates.size(), check); i++) {
-            ActionType checkState = previousStates.get(i);
-            for (ActionType state : states) {
+            ContextState checkState = previousStates.get(i);
+            for (ContextState state : states) {
                 if (checkState == state) {
                     counter++;
                 }
@@ -83,7 +83,7 @@ public class PeriodChange {
         return up + down;
     }
 
-    public Queue<ActionType> getPreviousStates() {
+    public Queue<ContextState> getPreviousStates() {
         return previousStates;
     }
 

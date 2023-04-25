@@ -1,7 +1,7 @@
 package me.alex.cryptotrader.util.trading;
 
 import com.binance.api.client.domain.account.Account;
-import me.alex.cryptotrader.instruction.ActionType;
+import me.alex.cryptotrader.instruction.ContextState;
 import me.alex.cryptotrader.instruction.TimePeriod;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.profile.UserProfile;
@@ -12,10 +12,10 @@ import java.util.function.Consumer;
 public class TradingSession {
 
     private final Map<Long, Double> previousPrices = new LinkedHashMap<>();
-    private final Map<Long, ActionType> previousMarketConditions = new LinkedHashMap<>();
+    private final Map<Long, ContextState> previousMarketConditions = new LinkedHashMap<>();
 
     private final RollingAverage rollingAverage = new RollingAverage(4);
-    private final PeriodChange periodChange = new PeriodChange(500);
+    private final MarketState marketState = new MarketState(500);
     private final Strategy strategy;
 
     private final Consumer<double[]> transactionConsumer;
@@ -64,10 +64,10 @@ public class TradingSession {
         // If there has been a change in the average value, increment our period change counter so we can monitor the
         // markets state at the current time.
         if (averageChange != 0) {
-            periodChange.inc(averageChange > 0);
+            marketState.inc(averageChange > 0);
         }
 
-        this.previousMarketConditions.put(timestamp, periodChange.getState());
+        this.previousMarketConditions.put(timestamp, marketState.getState());
         this.tradeCounter++;
     }
 
@@ -110,18 +110,18 @@ public class TradingSession {
         return -1;
     }
 
-    public ActionType getMostFrequencyMarketState(TimePeriod period) {
+    public ContextState getMostFrequencyMarketState(TimePeriod period) {
         long targetPeriod = lastMarketTransaction - period.getMilliseconds();
 
-        Map<ActionType, Integer> conditionFrequency = new HashMap<>();
+        Map<ContextState, Integer> contextFrequency = new HashMap<>();
 
-        for (Map.Entry<Long, ActionType> entry : previousMarketConditions.entrySet()) {
+        for (Map.Entry<Long, ContextState> entry : previousMarketConditions.entrySet()) {
             if (entry.getKey() > targetPeriod) {
-                conditionFrequency.put(entry.getValue(), conditionFrequency.getOrDefault(entry.getValue(), 0) + 1);
+                contextFrequency.put(entry.getValue(), contextFrequency.getOrDefault(entry.getValue(), 0) + 1);
             }
         }
 
-        return Collections.max(conditionFrequency.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+        return Collections.max(contextFrequency.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
     }
 
     public void setHalt(long timestamp, TimePeriod duration) {
@@ -174,8 +174,8 @@ public class TradingSession {
         return shouldStop;
     }
 
-    public ActionType getMarketCondition() {
-        return periodChange.getState();
+    public ContextState getMarketCondition() {
+        return marketState.getState();
     }
 
     public boolean isTest() {

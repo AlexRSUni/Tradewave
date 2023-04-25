@@ -5,8 +5,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import me.alex.cryptotrader.controller.element.InstructionCellController;
-import me.alex.cryptotrader.instruction.ActionType;
-import me.alex.cryptotrader.instruction.ConditionType;
+import me.alex.cryptotrader.instruction.ContextState;
+import me.alex.cryptotrader.instruction.InstructionContext;
 import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.instruction.TimePeriod;
 import me.alex.cryptotrader.instruction.impl.ActionInstruction;
@@ -23,15 +23,15 @@ public class Instruction {
     private final int id;
 
     // Instruction variables.
-    private ConditionType condition;
-    private ActionType action;
+    private InstructionContext context;
+    private ContextState state;
     private TimePeriod timePeriod;
     private String value;
     private int priority;
 
     // Interface variables.
-    private final ObjectProperty<ConditionType> conditionProperty;
-    private final ObjectProperty<ActionType> actionProperty;
+    private final ObjectProperty<InstructionContext> contextProperty;
+    private final ObjectProperty<ContextState> stateProperty;
     private final ObjectProperty<TimePeriod> timePeriodProperty;
     private final StringProperty valueProperty;
     private InstructionCellController controller;
@@ -44,8 +44,8 @@ public class Instruction {
         parseRawData(data);
 
         // Setup interface properties.
-        this.conditionProperty = new SimpleObjectProperty<>(this, "Condition", condition);
-        this.actionProperty = new SimpleObjectProperty<>(this, "Action", action);
+        this.contextProperty = new SimpleObjectProperty<>(this, "Context", context);
+        this.stateProperty = new SimpleObjectProperty<>(this, "State", state);
         this.timePeriodProperty = new SimpleObjectProperty<>(this, "Period", timePeriod);
         this.valueProperty = new SimpleStringProperty(this, "Value", value);
 
@@ -62,11 +62,11 @@ public class Instruction {
         }
 
         if (!split[0].equalsIgnoreCase("null")) {
-            condition = ConditionType.valueOf(split[0]);
+            context = InstructionContext.valueOf(split[0]);
         }
 
         if (!split[1].equalsIgnoreCase("null")) {
-            action = ActionType.valueOf(split[1]);
+            state = ContextState.valueOf(split[1]);
         }
 
         if (!split[2].equalsIgnoreCase("null")) {
@@ -81,20 +81,20 @@ public class Instruction {
     public String getRawData() {
         String rawData = "";
 
-        rawData += (condition == null ? "null" : condition.name()) + ":";
-        rawData += (action == null ? "null" : action.name()) + ":";
+        rawData += (context == null ? "null" : context.name()) + ":";
+        rawData += (state == null ? "null" : state.name()) + ":";
         rawData += (timePeriod == null ? "null" : timePeriod.name()) + ":";
         rawData += String.valueOf(value);
 
         return rawData;
     }
 
-    public ObjectProperty<ConditionType> conditionProperty() {
-        return conditionProperty;
+    public ObjectProperty<InstructionContext> contextProperty() {
+        return contextProperty;
     }
 
-    public ObjectProperty<ActionType> actionProperty() {
-        return actionProperty;
+    public ObjectProperty<ContextState> stateProperty() {
+        return stateProperty;
     }
 
     public ObjectProperty<TimePeriod> timePeriodProperty() {
@@ -105,22 +105,22 @@ public class Instruction {
         return valueProperty;
     }
 
-    public void setCondition(ConditionType condition) {
-        this.condition = condition;
-        this.conditionProperty.set(condition);
+    public void setContext(InstructionContext context) {
+        this.context = context;
+        this.contextProperty.set(context);
     }
 
-    public ConditionType getCondition() {
-        return condition;
+    public InstructionContext getContext() {
+        return context;
     }
 
-    public void setAction(ActionType action) {
-        this.action = action;
-        this.actionProperty.set(action);
+    public void setState(ContextState state) {
+        this.state = state;
+        this.stateProperty.set(state);
     }
 
-    public ActionType getAction() {
-        return action;
+    public ContextState getState() {
+        return state;
     }
 
     public void setTimePeriod(TimePeriod timePeriod) {

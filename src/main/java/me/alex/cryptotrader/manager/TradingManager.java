@@ -105,8 +105,11 @@ public class TradingManager {
             tradingSession.addMarketTransaction(System.currentTimeMillis(), price);
 
             if (isTrading && !isPaused) {
-                String output = strategy.onTradePrice(System.currentTimeMillis(), price, tradingSession);
-                if (output != null) stopTrading(output);
+                // Run our strategy on the incoming trade.
+                String haltCondition = strategy.onTradePrice(System.currentTimeMillis(), price, tradingSession);
+
+                // If there was a halt condition, stop trading.
+                if (haltCondition != null) stopTrading(haltCondition);
             }
 
             Platform.runLater(() -> {

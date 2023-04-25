@@ -7,8 +7,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import me.alex.cryptotrader.instruction.ActionType;
-import me.alex.cryptotrader.instruction.ConditionType;
+import me.alex.cryptotrader.instruction.ContextState;
+import me.alex.cryptotrader.instruction.InstructionContext;
 import me.alex.cryptotrader.instruction.TimePeriod;
 import me.alex.cryptotrader.manager.StrategyManager;
 import me.alex.cryptotrader.models.Instruction;
@@ -25,9 +25,9 @@ public class InstructionCellController implements Initializable {
     @FXML
     public AnchorPane background;
     @FXML
-    public ComboBox<ConditionType> comboCondition;
+    public ComboBox<InstructionContext> contextCombo;
     @FXML
-    public ComboBox<ActionType> comboAction;
+    public ComboBox<ContextState> stateCombo;
     @FXML
     public ComboBox<TimePeriod> comboTimePeriod;
     @FXML
@@ -46,14 +46,14 @@ public class InstructionCellController implements Initializable {
 
         if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.OR) {
 
-            // Setup condition combo box.
-            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
-            comboCondition.setItems(FXCollections.observableArrayList(ConditionType.CONDITIONS));
-            comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+            // Setup context combo box.
+            contextCombo.valueProperty().bindBidirectional(instruction.contextProperty());
+            contextCombo.setItems(FXCollections.observableArrayList(InstructionContext.CONDITIONS));
+            contextCombo.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
 
-            // Setup action combo box.
-            comboAction.valueProperty().bindBidirectional(instruction.actionProperty());
-            comboAction.valueProperty().addListener((observable, oldValue, newValue) -> onActionSelected(newValue));
+            // Setup state combo box.
+            stateCombo.valueProperty().bindBidirectional(instruction.stateProperty());
+            stateCombo.valueProperty().addListener((observable, oldValue, newValue) -> onActionSelected(newValue));
 
             // Setup time period combo box.
             comboTimePeriod.valueProperty().bindBidirectional(instruction.timePeriodProperty());
@@ -64,14 +64,14 @@ public class InstructionCellController implements Initializable {
             txtValue.textProperty().bindBidirectional(instruction.valueProperty());
             txtValue.textProperty().addListener((observable, oldValue, newValue) -> onValueChange(newValue));
 
-            onConditionSelected(instruction.getCondition());
+            onConditionSelected(instruction.getContext());
 
         } else if (instruction.getType() == Instruction.InstructionType.ACTION) {
 
-            // Setup condition combo box.
-            comboCondition.valueProperty().bindBidirectional(instruction.conditionProperty());
-            comboCondition.setItems(FXCollections.observableArrayList(ConditionType.ACTION_CONDITIONS));
-            comboCondition.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
+            // Setup context combo box.
+            contextCombo.valueProperty().bindBidirectional(instruction.contextProperty());
+            contextCombo.setItems(FXCollections.observableArrayList(InstructionContext.ACTION_CONDITIONS));
+            contextCombo.valueProperty().addListener((observable, oldValue, newValue) -> onConditionSelected(newValue));
 
             // Setup value text box.
             txtValue.textProperty().bindBidirectional(instruction.valueProperty());
@@ -112,13 +112,13 @@ public class InstructionCellController implements Initializable {
         }
     }
 
-    private void onConditionSelected(ConditionType type) {
-        instruction.setCondition(type);
+    private void onConditionSelected(InstructionContext type) {
+        instruction.setContext(type);
 
-        if (type != null && comboAction != null) {
-            // Add supported instruction types to the action combo box.
-            List<ActionType> supportedTypes = type.getSupportedInstructions();
-            comboAction.setItems(FXCollections.observableArrayList(supportedTypes));
+        if (type != null && stateCombo != null) {
+            // Add supported instruction types to the state combo box.
+            List<ContextState> supportedTypes = type.getSupportedInstructions();
+            stateCombo.setItems(FXCollections.observableArrayList(supportedTypes));
         }
 
         checkWhatShouldBeDisabled();
@@ -129,8 +129,8 @@ public class InstructionCellController implements Initializable {
         checkWhatShouldBeDisabled();
     }
 
-    private void onActionSelected(ActionType type) {
-        instruction.setAction(type);
+    private void onActionSelected(ContextState type) {
+        instruction.setState(type);
         checkWhatShouldBeDisabled();
     }
 
@@ -140,47 +140,47 @@ public class InstructionCellController implements Initializable {
     }
 
     private void checkWhatShouldBeDisabled() {
-        ConditionType condition = instruction.getCondition();
-        ActionType action = instruction.getAction();
+        InstructionContext context = instruction.getContext();
+        ContextState state = instruction.getState();
 
 
         // Reset states before disabling.
-        if (comboAction != null) comboAction.setDisable(false);
+        if (stateCombo != null) stateCombo.setDisable(false);
         if (comboTimePeriod != null) comboTimePeriod.setDisable(false);
         if (txtValue != null) txtValue.setDisable(false);
 
-        // If no condition is selected, disable all.
-        if (comboCondition != null && comboCondition.getSelectionModel().getSelectedItem() == null) {
-            if (comboAction != null) comboAction.setDisable(true);
+        // If no context is selected, disable all.
+        if (contextCombo != null && contextCombo.getSelectionModel().getSelectedItem() == null) {
+            if (stateCombo != null) stateCombo.setDisable(true);
             if (comboTimePeriod != null) comboTimePeriod.setDisable(true);
             txtValue.setDisable(true);
             return;
         }
 
-        // If condition doesn't have any actions, disable the action combo box.
-        if (comboAction != null && condition != null && condition.getSupportedInstructions().isEmpty()) {
-            comboAction.setDisable(true);
+        // If context doesn't have any states, disable the state combo box.
+        if (stateCombo != null && context != null && context.getSupportedInstructions().isEmpty()) {
+            stateCombo.setDisable(true);
             if (txtValue != null) txtValue.setDisable(true);
         }
 
-        // If no action is selected, disable the text value and time period combo box.
-        if (condition != null && !condition.getSupportedInstructions().isEmpty() && comboAction != null && comboAction.getSelectionModel().getSelectedItem() == null) {
+        // If no state is selected, disable the text value and time period combo box.
+        if (context != null && !context.getSupportedInstructions().isEmpty() && stateCombo != null && stateCombo.getSelectionModel().getSelectedItem() == null) {
             txtValue.setDisable(true);
             comboTimePeriod.setDisable(true);
         }
 
-        // If the action or condition does not allow the text box or time period to be edited.
-        if (action != null && !action.canInputValue()) {
+        // If the state or context does not allow the text box or time period to be edited.
+        if (state != null && !state.canInputValue()) {
             if (txtValue != null) txtValue.setDisable(true);
         }
 
-        // If the action or condition does not support the time period combo box.
-        if ((action != null && !action.canHaveTimePeriod()) || (condition != null && !condition.canHaveTimePeriod())) {
+        // If the state or context does not support the time period combo box.
+        if ((state != null && !state.canHaveTimePeriod()) || (context != null && !context.canHaveTimePeriod())) {
             if (comboTimePeriod != null) comboTimePeriod.setDisable(true);
         }
 
-        // If condition is SELL_ALL, then we do not need to input a value.
-        if (txtValue != null && condition == ConditionType.SELL_ALL) {
+        // If context is SELL_ALL, then we do not need to input a value.
+        if (txtValue != null && context == InstructionContext.SELL_ALL) {
             txtValue.setDisable(true);
         }
 

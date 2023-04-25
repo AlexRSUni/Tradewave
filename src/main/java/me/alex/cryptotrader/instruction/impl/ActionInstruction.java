@@ -6,7 +6,7 @@ import com.binance.api.client.domain.TimeInForce;
 import com.binance.api.client.domain.account.NewOrder;
 import com.binance.api.client.domain.account.NewOrderResponse;
 import com.binance.api.client.exception.BinanceApiException;
-import me.alex.cryptotrader.instruction.ConditionType;
+import me.alex.cryptotrader.instruction.InstructionContext;
 import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
@@ -26,10 +26,10 @@ public class ActionInstruction extends CryptoInstruction {
 
     @Override
     public boolean checkInstruction(long timestamp, double price, TradingSession session) {
-        ConditionType condition = instruction.getCondition();
+        InstructionContext context = instruction.getContext();
         String value = instruction.getValue();
 
-        switch (condition) {
+        switch (context) {
 
             case BUY -> {
                 double toBuy = NumberUtils.toDouble(value, -1);
@@ -99,7 +99,12 @@ public class ActionInstruction extends CryptoInstruction {
         }
 
         try {
-            NewOrderResponse response = client.newOrder(NewOrder.limitBuy(strategy.tokenProperty().get(), TimeInForce.FOK, FORMAT_TRADE.format(buy), FORMAT_TRADE.format(price * 1.01)));
+            NewOrderResponse response = client.newOrder(
+                    NewOrder.limitBuy(strategy.tokenProperty().get(),
+                            TimeInForce.FOK,
+                            FORMAT_TRADE.format(buy),
+                            FORMAT_TRADE.format(price * 1.01))
+            );
 
             if (response.getStatus() == OrderStatus.FILLED) {
                 return true;

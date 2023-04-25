@@ -44,7 +44,9 @@ public class Strategy {
                 // Check if the current instruction is an IF, if it is, ensure that the condition has been met,
                 // otherwise flag that we have failed the if statement, which will skip all following instructions
                 // until an ELSE / ELSE IF or END IF are reached.
-                if (instruction.getType() == Instruction.InstructionType.IF || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.OR) {
+                if (instruction.getType() == Instruction.InstructionType.IF
+                        || instruction.getType() == Instruction.InstructionType.ELSE_IF
+                        || instruction.getType() == Instruction.InstructionType.OR) {
 
                     if (instruction.getType() == Instruction.InstructionType.IF || success < depth) {
                         depth++;
@@ -92,7 +94,9 @@ public class Strategy {
                 } else {
                     if (!waitForEndIf) {
 
-                        if (instruction.getType() == Instruction.InstructionType.OR || instruction.getType() == Instruction.InstructionType.ELSE_IF || instruction.getType() == Instruction.InstructionType.ELSE) {
+                        if (instruction.getType() == Instruction.InstructionType.OR
+                                || instruction.getType() == Instruction.InstructionType.ELSE_IF
+                                || instruction.getType() == Instruction.InstructionType.ELSE) {
 
                             if (impl != null) {
                                 // Check condition.
