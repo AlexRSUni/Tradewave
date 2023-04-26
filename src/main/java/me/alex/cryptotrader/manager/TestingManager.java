@@ -15,6 +15,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -39,17 +40,17 @@ public class TestingManager {
 
     public void startStrategyTest(String currency) {
         if (currentStrategy == null || period == null || historicData == null) {
-            Utilities.sendErrorAlert("Failed to start test!", "Both a strategy and time period must be selected!");
+            Utilities.sendAlert("Failed to start test!", "Both a strategy and time period must be selected!");
             return;
         }
 
         if (currency != null && !currency.isEmpty() && !NumberUtils.isCreatable(currency)) {
-            Utilities.sendErrorAlert("Invalid starting currency!", "The number '" + currency + "' is not a valid starting currency amount!");
+            Utilities.sendAlert("Invalid starting currency!", "The number '" + currency + "' is not a valid starting currency amount!");
             return;
         }
 
         if (historicData.isEmpty()) {
-            Utilities.sendErrorAlert("Could not load historic data!", "Failed to load any historic trading data. Could be throttled by Binance!");
+            Utilities.sendAlert("Could not load historic data!", "Failed to load any historic trading data. Could be throttled by Binance!");
             return;
         }
 
@@ -88,7 +89,7 @@ public class TestingManager {
             session.addMarketTransaction(timestamp, price);
 
             // Check our strategy.
-            haltCondition = currentStrategy.onTradePrice(timestamp, price, session);
+            haltCondition = currentStrategy.onTradePrice(timestamp, price, session, Collections.emptyList());
 
             if (haltCondition != null) {
                 break;
@@ -96,7 +97,7 @@ public class TestingManager {
         }
 
         if (haltCondition != null) {
-            Utilities.sendErrorAlert("Testing stopped before it could finish!", haltCondition);
+            Utilities.sendAlert("Testing stopped before it could finish!", haltCondition);
         }
 
         controller.onTestFinished(currentStrategy, session.getStartingToken(), session.getTokenAmount(),

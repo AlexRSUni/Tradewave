@@ -104,11 +104,19 @@ public class UserProfile {
         ownedTokens.put(token, amount);
 
         Platform.runLater(() -> {
+            boolean updated = false;
+
             // Update Fund model to reflect changes to the GUI.
             for (Fund fund : funds) {
                 if (fund.getToken().equalsIgnoreCase(token)) {
                     fund.fundProperty().set(amount + " " + token);
+                    updated = true;
+                    break;
                 }
+            }
+
+            if (!updated) {
+                funds.add(new Fund(token, String.valueOf(amount)));
             }
         });
     }

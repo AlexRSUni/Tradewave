@@ -3,6 +3,8 @@ package me.alex.cryptotrader.util;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import me.alex.cryptotrader.CryptoApplication;
+import me.alex.cryptotrader.models.Instruction;
+import me.alex.cryptotrader.models.Strategy;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -12,7 +14,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,7 +29,6 @@ public class Utilities {
 
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/CBC/PKCS5Padding";
-
 
     public static void runTask(Runnable runnable) {
         Task<Void> fetchTradingPairsTask = new Task<>() {
@@ -49,9 +52,9 @@ public class Utilities {
         }
     }
 
-    public static void sendErrorAlert(String header, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error!");
+    public static void sendAlert(String header, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Alert!");
         alert.setHeaderText(header);
         alert.setContentText(message);
         alert.showAndWait();

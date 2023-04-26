@@ -15,11 +15,17 @@ import me.alex.cryptotrader.factory.TransactionCellFactory;
 import me.alex.cryptotrader.manager.TradingManager;
 import me.alex.cryptotrader.manager.ViewManager;
 import me.alex.cryptotrader.models.Fund;
+import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.trading.TradingSession;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TradingController extends BaseController {
 
@@ -89,11 +95,25 @@ public class TradingController extends BaseController {
     @FXML
     public void startTrading() {
         if (manager.getStrategy() == null) {
-            Utilities.sendErrorAlert("Trading was cancelled.", "You have not selected a strategy!");
+            Utilities.sendAlert("Trading was cancelled.", "You have not selected a strategy!");
             return;
         }
 
-        manager.startTrading();
+        List<Instruction> generatedInstructions = Collections.emptyList();
+        String stopLoss = txtStopLoss.textProperty().get();
+
+        if (!stopLoss.isEmpty()) {
+            double value = NumberUtils.toDouble(stopLoss, -1);
+
+            if (value == -1) {
+                Utilities.sendAlert("Invalid stop-loss value!", "Please provide a valid stop loss price!");
+                return;
+            } else {
+                generatedInstructions = createStopLossInstructions(manager.getStrategy(), value);
+            }
+        }
+
+        manager.startTrading(generatedInstructions);
         startPanel.setVisible(false);
 
         // Update status display.
@@ -144,6 +164,17 @@ public class TradingController extends BaseController {
 
             lblProfit.setText((difference >= 0 ? "+" : "") + Utilities.formatPrice(difference, token));
         }
+
+        refreshFundList(strategy);
+    }
+
+    public void refreshFundList(Strategy strategy) {
+        listFunds.setItems(UserProfile.get().getFunds());
+
+        listFunds.setItems(UserProfile.get().getFunds().filtered(fund -> {
+            String token = fund.getToken();
+            return token.equalsIgnoreCase(strategy.getTokenPairNames()[0]) || token.equalsIgnoreCase(strategy.getTokenPairNames()[1]);
+        }));
     }
 
     private void onStrategyChange(Strategy strategy) {
@@ -152,10 +183,7 @@ public class TradingController extends BaseController {
 
         transactions.clear();
 
-        listFunds.setItems(UserProfile.get().getFunds().filtered(fund -> {
-            String token = fund.getToken();
-            return token.equalsIgnoreCase(strategy.getTokenPairNames()[0]) || token.equalsIgnoreCase(strategy.getTokenPairNames()[1]);
-        }));
+        refreshFundList(strategy);
 
         manager.selectTradingStrategy(strategy);
     }
@@ -163,6 +191,17 @@ public class TradingController extends BaseController {
     private void setStatusText(String text, String color) {
         lblStatus.setText(text);
         lblStatus.setStyle("-fx-text-fill: " + color + ";");
+    }
+
+    private List<Instruction> createStopLossInstructions(Strategy strategy, double price) {
+        List<Instruction> instructions = new ArrayList<>();
+
+        instructions.add(new Instruction(-1, -1, Instruction.InstructionType.IF, "PRICE:DROPS_BELOW:null:" + price, strategy));
+        instructions.add(new Instruction(-1, -1, Instruction.InstructionType.ACTION, "SELL_ALL:null:null:null", strategy));
+        instructions.add(new Instruction(-1, -1, Instruction.InstructionType.STOP, "", strategy));
+        instructions.add(new Instruction(-1, -1, Instruction.InstructionType.END_IF, "", strategy));
+
+        return instructions;
     }
 
     public TradingManager getManager() {

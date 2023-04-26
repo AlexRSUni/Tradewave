@@ -60,7 +60,7 @@ public class StrategyCellController implements Initializable {
         Strategy tradingStrategy = TradingManager.get().getStrategy();
 
         if (tradingStrategy != null && tradingStrategy == strategy && TradingManager.get().isTrading()) {
-            Utilities.sendErrorAlert("Cannot modify strategy!", "This strategy is currently in use! Stop trading first!");
+            Utilities.sendAlert("Cannot modify strategy!", "This strategy is currently in use! Stop trading first!");
             return false;
         }
 

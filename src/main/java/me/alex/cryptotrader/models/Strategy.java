@@ -7,6 +7,9 @@ import me.alex.cryptotrader.instruction.CryptoInstruction;
 import me.alex.cryptotrader.util.Utilities;
 import me.alex.cryptotrader.util.trading.TradingSession;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Strategy {
 
     private final ObservableList<Instruction> instructions;
@@ -24,7 +27,7 @@ public class Strategy {
         this.instructions = instructions;
     }
 
-    public String onTradePrice(long timestamp, double price, TradingSession data) {
+    public String onTradePrice(long timestamp, double price, TradingSession data, List<Instruction> extra) {
         String haltCondition = null;
 
         int depth = 0;
@@ -36,7 +39,11 @@ public class Strategy {
             return null;
         }
 
-        for (Instruction instruction : instructions) {
+        // Collect our instructions.
+        List<Instruction> allInstructions = new ArrayList<>(extra);
+        allInstructions.addAll(instructions);
+
+        for (Instruction instruction : allInstructions) {
             CryptoInstruction impl = instruction.getInstructionImpl();
 
             if (depth > failed) {

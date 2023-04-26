@@ -1,5 +1,6 @@
 package me.alex.cryptotrader.util;
 
+import me.alex.cryptotrader.instruction.InstructionContext;
 import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.util.binance.BinanceUtils;
@@ -41,10 +42,12 @@ public class ValidationUtils {
                     return "ACTION on line " + (i + 1) + " has an invalid value!";
                 }
 
-                double min = BinanceUtils.fetchMinNotional(strategy.tokenProperty().get());
-                if (min > 0 && min >= NumberUtils.toDouble(instruction.getValue(), -1) * price) {
-                    return "ACTION on line " + (i + 1) + " must have trade value of at least "
-                            + min + " " + strategy.getTokenPairNames()[1] + "!";
+                if (instruction.getContext() != InstructionContext.SELL_ALL) {
+                    double min = BinanceUtils.fetchMinNotional(strategy.tokenProperty().get());
+                    if (min > 0 && min >= NumberUtils.toDouble(instruction.getValue(), -1) * price) {
+                        return "ACTION on line " + (i + 1) + " must have trade value of at least "
+                                + min + " " + strategy.getTokenPairNames()[1] + "!";
+                    }
                 }
 
             } else if (instruction.getType() == Instruction.InstructionType.WAIT) {

@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.StackPane;
 import me.alex.cryptotrader.controller.main.TradingController;
+import me.alex.cryptotrader.models.Instruction;
 import me.alex.cryptotrader.models.Strategy;
 import me.alex.cryptotrader.models.Transaction;
 import me.alex.cryptotrader.profile.UserProfile;
@@ -24,6 +25,7 @@ public class TradingManager {
     private final TradingController controller;
     private final MarketPanel marketPanel;
 
+    private List<Instruction> stopLossInstructions;
     private AggTradesListener tradingListener;
     private TradingSession tradingSession;
     private Strategy strategy;
@@ -52,7 +54,7 @@ public class TradingManager {
 
         // Fetch and inject historic data.
         List<double[]> historicData = BinanceUtils.fetchHistoryTradingData(tokenPair, "1m", 60 * 60);
-        Collections.reverse(historicData);
+//        Collections.reverse(historicData);
         historicData.stream().map(data -> data[4]).forEach(value -> marketPanel.addGraphData(value, false));
 
         // Update the charts title.
@@ -66,10 +68,13 @@ public class TradingManager {
         startTradeListener();
     }
 
-    public void startTrading() {
+    public void startTrading(List<Instruction> stopLossInstructions) {
         if (isTrading) {
             return;
         }
+
+        // Set our stop loss instructions.
+        this.stopLossInstructions = stopLossInstructions;
 
         isTrading = true;
     }
@@ -85,7 +90,7 @@ public class TradingManager {
             controller.stopTrading();
 
             if (haltCondition != null) {
-                Utilities.sendErrorAlert("Trading was stopped.", haltCondition);
+                Utilities.sendAlert("Trading was stopped.", haltCondition);
             }
         });
     }
@@ -106,7 +111,7 @@ public class TradingManager {
 
             if (isTrading && !isPaused) {
                 // Run our strategy on the incoming trade.
-                String haltCondition = strategy.onTradePrice(System.currentTimeMillis(), price, tradingSession);
+                String haltCondition = strategy.onTradePrice(System.currentTimeMillis(), price, tradingSession, stopLossInstructions);
 
                 // If there was a halt condition, stop trading.
                 if (haltCondition != null) stopTrading(haltCondition);

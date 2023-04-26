@@ -121,7 +121,7 @@ public class InstructionController extends BaseController {
             valueTask.cancel();
 
         } else {
-            Utilities.sendErrorAlert("Formatting error in Instructions list!", error);
+            Utilities.sendAlert("Formatting error in Instructions list!", error);
         }
     }
 
@@ -154,7 +154,7 @@ public class InstructionController extends BaseController {
                     instructionList.getItems().forEach(instruction -> instruction.getController().updateEstimatedValue(manager.getTradesListener().getCurrentPrice()));
                 });
             }
-        }, 0, 1000L);
+        }, 1000L, 1000L);
     }
 
     // Creates a factory handler for the ListCell which allows us to drag and drop the instructions in the list

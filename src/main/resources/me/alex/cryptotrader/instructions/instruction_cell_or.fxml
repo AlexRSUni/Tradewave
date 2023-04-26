@@ -21,8 +21,8 @@
         </image>
     </ImageView>
    <Line endY="79.0" layoutX="57.0" layoutY="12.0" startY="-2.0" />
-   <ComboBox fx:id="comboCondition" layoutX="129.0" layoutY="10.0" prefHeight="35.0" prefWidth="186.0" promptText="Condition" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
-   <ComboBox fx:id="comboAction" layoutX="324.0" layoutY="10.0" prefHeight="35.0" prefWidth="197.0" promptText="Action" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
+   <ComboBox fx:id="contextCombo" layoutX="129.0" layoutY="10.0" prefHeight="35.0" prefWidth="186.0" promptText="Context" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
+   <ComboBox fx:id="stateCombo" layoutX="324.0" layoutY="10.0" prefHeight="35.0" prefWidth="197.0" promptText="State" style="-fx-background-radius: 10px; -fx-background-color: white; -fx-font-weight: bold;" />
    <Label alignment="CENTER" layoutX="70.0" layoutY="30.0" prefHeight="45.0" prefWidth="45.0" style="-fx-background-color: #544177; -fx-background-radius: 10px;" text="OR" textFill="WHITE">
       <font>
          <Font name="System Bold" size="27.0" />
