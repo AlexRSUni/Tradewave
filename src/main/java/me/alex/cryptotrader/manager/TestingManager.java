@@ -75,7 +75,7 @@ public class TestingManager {
                     )
             );
 
-            marketPanel.addScatterData((int) trade[0], price, amount > 0);
+            marketPanel.addScatterData((int) trade[0] * 2, price, amount > 0);
         });
 
         String haltCondition = null;
